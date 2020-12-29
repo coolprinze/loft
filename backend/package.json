@@ -1,0 +1,11 @@
+{
+  "name": "loft_server_script",
+  "version": "1.0.0",
+  "description": "Loft Immigration Web Service",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Cybertech Digitals",
+  "license": "ISC"
+}
