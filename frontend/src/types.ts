@@ -1,8 +1,8 @@
 export type errorKey =
-  | 'fname'
+  | 'first_name'
   | 'educated'
   | 'seducated'
-  | 'lname'
+  | 'last_name'
   | 'email'
   | 'citizenship'
   | 'residence'

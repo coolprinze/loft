@@ -11,11 +11,17 @@ import Loading from '../components/Loading'
 import { apiURL } from '../config'
 import { errHandler, handleErr } from '../helper/errorHandler'
 import MainLayout from '../layouts/MainLayout'
-import countries from '../static/countries'
-import Funds from '../static/funds'
 import { errorKey } from '../types'
 
-const Antigua = () => {
+const Antigua = ({
+  countries,
+  worthRanges: netWorthRange,
+  investRanges: investmentRange,
+}: {
+  countries: { name: string; value: number }[]
+  worthRanges: { name: string; value: number }[]
+  investRanges: { name: string; value: number }[]
+}) => {
   const preferredCom = [
       'Phone Call',
       'Email',
@@ -25,8 +31,8 @@ const Antigua = () => {
       'Wechat',
     ],
     initialState = {
-      fname: '',
-      lname: '',
+      first_name: '',
+      last_name: '',
       email: '',
       nationality: '',
       residence: '',
@@ -48,8 +54,8 @@ const Antigua = () => {
   const toggleStep = (val: number) => validateStep(val - 1),
     validateStep = (val: number) => {
       let {
-        fname,
-        lname,
+        first_name,
+        last_name,
         email,
         nationality,
         residence,
@@ -63,8 +69,8 @@ const Antigua = () => {
       if (val === 1) {
         const phone = phn.replace(/\D/g, '').slice(-10)
 
-        !fname && errors.push('fname')
-        !lname && errors.push('lname')
+        !first_name && errors.push('first_name')
+        !last_name && errors.push('last_name')
         !nationality && errors.push('nationality')
         !residence && errors.push('residence')
         !validator.isEmail(email) && errors.push('email')
@@ -102,8 +108,9 @@ const Antigua = () => {
             Accept: 'application/json',
           },
         }
-        await axios.post(`${apiURL}/antigua`, data, config)
-
+        await axios.post(`${apiURL}/immigrants/antigua`, data, config)
+        toast.success('')
+        window.location.href = '/antigua-thanks'
         setUserData(initialState)
         setLoading(false)
       } catch (err) {
@@ -137,7 +144,14 @@ const Antigua = () => {
         })
     },
     section1 = (isOpen: number) => {
-      const { fname, lname, email, nationality, residence, phone } = userData
+      const {
+        first_name,
+        last_name,
+        email,
+        nationality,
+        residence,
+        phone,
+      } = userData
 
       return (
         <div className='section mb-2 p-3'>
@@ -152,20 +166,20 @@ const Antigua = () => {
             <Row>
               <Col md={4} sm={6} className='py-1'>
                 <TextInputGroup
-                  invalid={hasErrors('fname')}
+                  invalid={hasErrors('first_name')}
                   label='First Name'
-                  name='fname'
-                  value={fname}
+                  name='first_name'
+                  value={first_name}
                   required
                   onChange={onChange}
                 />
               </Col>
               <Col md={4} sm={6} className='py-1'>
                 <TextInputGroup
-                  invalid={hasErrors('lname')}
+                  invalid={hasErrors('last_name')}
                   label='Last Name'
-                  name='lname'
-                  value={lname}
+                  name='last_name'
+                  value={last_name}
                   required
                   onChange={onChange}
                 />
@@ -251,7 +265,7 @@ const Antigua = () => {
                   id='networth'
                   name='networth'
                   value={networth}
-                  options={Funds}
+                  options={netWorthRange}
                   placeholder='PLEASE SELECT'
                   onSelect={onChange}
                   required
@@ -264,7 +278,7 @@ const Antigua = () => {
                   id='invest_funds'
                   name='invest_funds'
                   value={invest_funds}
-                  options={Funds}
+                  options={investmentRange}
                   placeholder='PLEASE SELECT'
                   onSelect={onChange}
                   required
