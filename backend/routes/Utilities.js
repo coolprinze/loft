@@ -1,7 +1,7 @@
 const { Router } = require('express')
 const { getFundRanges } = require('../controllers/utilityController')
 const Country = require('../models/Country')
-const { getAll } = require('./common')
+const { getAll } = require('./Common')
 const utilityRouter = Router()
 
 // @route   GET api/Skills/test

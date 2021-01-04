@@ -1,5 +1,7 @@
-import React from "react";
-import Datetime from "react-datetime";
+import React from 'react'
+import Datetime from 'react-datetime'
+import Select from 'react-select'
+import makeAnimated from 'react-select/animated'
 import {
   Col,
   CustomInput,
@@ -7,90 +9,98 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupText,
+  InputProps,
   Label,
-} from "reactstrap";
-import { ColProps } from "reactstrap/lib/Col";
-import { CustomInputProps } from "reactstrap/lib/CustomInput";
-import validator from "validator";
-import "./style.css";
-import TextValidator from "./TextValidator";
+} from 'reactstrap'
+import { ColProps } from 'reactstrap/lib/Col'
+import { CustomInputProps } from 'reactstrap/lib/CustomInput'
+import validator from 'validator'
+import './style.css'
+import TextValidator from './TextValidator'
 
-export const TextInputGroup = ({ iconClass = "", label = "", ...rest }) => {
+const animatedComponents = makeAnimated()
+
+export const TextInputGroup = ({
+  iconClass = '',
+  label = '',
+  ...rest
+}: { iconClass?: string; label?: string } & InputProps) => {
   return (
     <>
       {!validator.isEmpty(label) ? (
-        <label className="form-control-label mt-2" htmlFor={rest.name}>
+        <label className='form-control-label mt-2' htmlFor={rest.name}>
           {label}
-          {rest.required && <span className="text-danger">*</span>}
+          {rest.required && <span className='text-danger'>*</span>}
         </label>
       ) : (
-          <></>
-        )}
-      <TextValidator value {...rest} />
+        <></>
+      )}
+      <TextValidator {...rest} />
       {rest.subText && <small>{rest.subText}</small>}
     </>
-  );
-};
+  )
+}
 
-export const FileInput = ({ iconClass = "", label = "", ...rest }) => {
+export const FileInput = ({ iconClass = '', label = '', ...rest }) => {
   return (
-    <FormGroup className="mb-2">
+    <FormGroup className='mb-2'>
       {!validator.isEmpty(label) ? (
-        <label className="form-control-label mt-2" htmlFor={rest.name}>
+        <label className='form-control-label mt-2' htmlFor={rest.name}>
           {label}
-          {rest.required && <span className="text-danger">*</span>}
+          {rest.required && <span className='text-danger'>*</span>}
         </label>
       ) : (
-          <></>
-        )}
-      <InputGroup className="input-group-alternative">
+        <></>
+      )}
+      <InputGroup className='input-group-alternative'>
         {!validator.isEmpty(iconClass) ? (
-          <InputGroupAddon addonType="prepend">
+          <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <i className={iconClass} />
             </InputGroupText>
           </InputGroupAddon>
         ) : (
-            ""
-          )}
-        <CustomInput id={rest.name}
-          type="file"
+          ''
+        )}
+        <CustomInput
+          id={rest.name}
+          type='file'
           {...rest}
-          label={rest.customLabel ? rest.customLabel : "Choose file"}
+          label={rest.customLabel ? rest.customLabel : 'Choose file'}
         />
       </InputGroup>
       {rest.subText && <small>{rest.subText}</small>}
     </FormGroup>
-  );
-};
+  )
+}
 
 export const DateInputGroup = ({
-  onChange = (e: any) => { },
-  iconClass = "",
-  label = "",
-  value = "",
+  onChange = (e: any) => {},
+  iconClass = '',
+  label = '',
+  value = '',
   ...rest
 }) => {
   return (
-    <FormGroup className="mb-2">
+    <FormGroup className='mb-2'>
       {!validator.isEmpty(label) ? (
-        <label className="form-control-label mt-2" htmlFor={rest.name}>
+        <label className='form-control-label mt-2' htmlFor={rest.name}>
           {label}
-          {rest.required && <span className="text-danger">*</span>}
+          {rest.required && <span className='text-danger'>*</span>}
         </label>
       ) : (
-          <></>
-        )}
-      <InputGroup className="input-group-alternative">
+        <></>
+      )}
+      <InputGroup className='input-group-alternative'>
         {!validator.isEmpty(iconClass) ? (
-          <InputGroupAddon addonType="prepend">
+          <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <i className={iconClass} />
             </InputGroupText>
           </InputGroupAddon>
         ) : (
-            ""
-          )}
+          ''
+        )}
         <Datetime
           onChange={onChange}
           closeOnSelect
@@ -100,15 +110,15 @@ export const DateInputGroup = ({
         />
       </InputGroup>
     </FormGroup>
-  );
-};
+  )
+}
 
 export type radioOptions = {
-  id?: string | "";
-  label: string;
-  value: string;
-  selected?: boolean;
-};
+  id?: string | ''
+  label: string
+  value: string | number
+  selected?: boolean
+}
 
 export const CheckBoxInput = ({
   title,
@@ -121,24 +131,23 @@ export const CheckBoxInput = ({
   colProps,
   ...rest
 }: {
-  title?: string;
-  label?: string;
-  name: string;
-  required?: boolean | false;
-  options: radioOptions[];
-  inline?: boolean | false;
-  onChange: (e: any) => void;
+  title?: string
+  label?: string
+  name: string
+  required?: boolean | false
+  options: radioOptions[]
+  inline?: boolean | false
+  onChange: (e: any) => void
   colProps: ColProps
 } & CustomInputProps) => {
   return (
     <>
-      <Col sm="12">
-
-        <Label className="mt-2">{title || label}</Label>
+      <Col sm='12'>
+        <Label className='mt-2'>{title || label}</Label>
       </Col>
-      {options.map(option =>
+      {options.map((option) => (
         <Col {...colProps} key={option.id}>
-          <FormGroup className="mb-0">
+          <FormGroup className='mb-0'>
             <CustomInput
               {...rest}
               id={`${option.id}`}
@@ -150,39 +159,40 @@ export const CheckBoxInput = ({
               defaultChecked={option.selected || false}
               required={required}
             />
-
-          </FormGroup></Col>)}
+          </FormGroup>
+        </Col>
+      ))}
     </>
-  );
-};
+  )
+}
 
 export const RadioInput = ({
   title,
   name,
-  id,
+  id = name,
   required,
   options,
   inline,
   onSelect,
   ...rest
 }: {
-  title?: string;
-  name: string;
-  id: any;
-  required?: boolean | false;
-  options: radioOptions[];
-  inline?: boolean | false;
-  onSelect: (e: any) => void;
+  title?: string
+  name: string
+  id?: any
+  required?: boolean | false
+  options: radioOptions[]
+  inline?: boolean | false
+  onSelect: (e: any) => void
 } & CustomInputProps) => {
   return (
-    <FormGroup className="mb-2">
-      {title && <Label className="mt-2">{title}</Label>}
+    <FormGroup className='mb-2'>
+      {title && <Label className='mt-2'>{title}</Label>}
       <div>
         {options.map((option, key) => (
           <CustomInput
             {...rest}
             key={key}
-            id={`${option.id + id}`}
+            id={`${id + key}`}
             name={name}
             value={option.value}
             label={option.label}
@@ -194,8 +204,8 @@ export const RadioInput = ({
         ))}
       </div>
     </FormGroup>
-  );
-};
+  )
+}
 
 export const CheckBoxes = ({
   title,
@@ -203,28 +213,28 @@ export const CheckBoxes = ({
   options,
   inline,
   onSelect,
-  type = "checkbox",
+  type = 'checkbox',
   ...rest
 }: {
-  title: string;
-  required?: boolean | false;
-  invalid?: boolean | false;
-  options: radioOptions[];
-  inline?: boolean | false;
-  onSelect: (e: any) => void;
+  title: string
+  required?: boolean | false
+  invalid?: boolean | false
+  options: radioOptions[]
+  inline?: boolean | false
+  onSelect: (e: any) => void
 } & CustomInputProps) => {
   return (
-    <FormGroup className="mb-2">
-      <Label className="mt-2">{title}</Label>
+    <FormGroup className='mb-2'>
+      <Label className='mt-2'>{title}</Label>
       <div>
         {options.map((option, key) => (
           <CustomInput
             {...rest}
-            className="mb-2"
+            className='mb-2'
             key={key}
             type={type}
             id={`${option.id}`}
-            name={option.value}
+            name={rest.name}
             value={option.value}
             label={option.label}
             inline={inline}
@@ -235,70 +245,71 @@ export const CheckBoxes = ({
         ))}
       </div>
     </FormGroup>
-  );
-};
+  )
+}
 
 export const SelectGroup = ({
   placeholder,
   name,
   options = [],
   onSelect,
-  id = "",
+  id = '',
   required = false,
-  value = "",
-  iconClass = "",
+  value = '',
+  iconClass = '',
   disabled = false,
-  label = "",
-  defaultValue = "",
+  label = '',
+  defaultValue = '',
   ...rest
 }: {
-  value?: string | number;
-  id?: string;
-  invalid?: boolean | false;
-  subText?: string;
-  defaultValue?: string;
-  placeholder: string;
-  name: string;
-  required?: boolean;
+  value?: string | number
+  id?: string
+  invalid?: boolean | false
+  subText?: string
+  defaultValue?: string
+  placeholder: string
+  name: string
+  required?: boolean
   options: {
-    name: string;
-    value: string | number;
-    code?: string;
-    title?: string;
-    selected?: boolean;
-  }[];
-  onSelect: (e: any) => void;
-  iconClass?: string;
-  disabled?: boolean;
-  label?: string;
-  labelClass?: string;
+    name: string
+    value: string | number
+    code?: string
+    title?: string
+    selected?: boolean
+  }[]
+  onSelect: (e: any) => void
+  iconClass?: string
+  disabled?: boolean
+  label?: string
+  labelClass?: string
 }) => {
   return (
-    <FormGroup className="mb-2">
+    <FormGroup className='mb-2'>
       {!validator.isEmpty(label) ? (
         <label
-          className={`mt-2 form-control-label ${rest.labelClass ? rest.labelClass : ""
-            }`}
+          className={`mt-2 form-control-label ${
+            rest.labelClass ? rest.labelClass : ''
+          }`}
           htmlFor={name}
         >
-          {required && <span className="text-danger">* </span>}
+          {required && <span className='text-danger'>* </span>}
           {label}
         </label>
       ) : (
-          <></>
-        )}
-      <InputGroup className="input-group-alternative">
+        <></>
+      )}
+      <InputGroup className='input-group-alternative'>
         {!validator.isEmpty(iconClass) ? (
-          <InputGroupAddon addonType="prepend">
+          <InputGroupAddon addonType='prepend'>
             <InputGroupText>
               <i className={iconClass} />
             </InputGroupText>
           </InputGroupAddon>
         ) : (
-            ""
-          )}
+          ''
+        )}
         <CustomInput
-          type="select"
+          type='select'
           id={id}
           name={name}
           onChange={onSelect}
@@ -306,15 +317,11 @@ export const SelectGroup = ({
           disabled={disabled}
           {...rest}
         >
-          <option
-            value=""
-            defaultValue=""
-            disabled={value ? true : false}
-          >
+          <option value='' defaultValue='' disabled={value ? true : false}>
             {placeholder}
           </option>
           {options.map((item, key) => {
-            if (item.title) item.name = item.title;
+            if (item.title) item.name = item.title
 
             return (
               <option
@@ -325,19 +332,72 @@ export const SelectGroup = ({
               >
                 {item.name}
               </option>
-            );
+            )
           })}
         </CustomInput>
       </InputGroup>
       {rest.subText && (
         <small
-          className={`form-control-label ${rest.labelClass ? rest.labelClass : ""
-            }`}
+          className={`form-control-label ${
+            rest.labelClass ? rest.labelClass : ''
+          }`}
         >
           {rest.subText}
         </small>
       )}
     </FormGroup>
-  );
-};
+  )
+}
 
+export const CustomSelectGroup = ({
+  placeholder,
+  options,
+  onSelect,
+  iconClass = '',
+  label = '',
+  isMulti = false,
+  ...rest
+}: {
+  label?: string
+  placeholder: string
+  isMulti?: boolean
+  options: any[]
+  onSelect: (e: any) => void
+  iconClass?: string
+} & InputProps) => {
+  console.log(options)
+
+  return (
+    <FormGroup className='mb-2'>
+      {!validator.isEmpty(label) ? (
+        <label className='form-control-label mt-2' htmlFor={rest.name}>
+          {label}
+          {rest.required && <span className='text-danger'>*</span>}
+        </label>
+      ) : (
+        <></>
+      )}
+      <InputGroup className='input-group-alternative'>
+        {!validator.isEmpty(iconClass) ? (
+          <InputGroupAddon addonType='prepend'>
+            <InputGroupText>
+              <i className={iconClass} />
+            </InputGroupText>
+          </InputGroupAddon>
+        ) : (
+          ''
+        )}
+
+        <Select
+          onChange={onSelect}
+          required={rest.required}
+          className='form-control h-auto p-0'
+          components={animatedComponents}
+          isMulti={isMulti}
+          placeholder={placeholder}
+          options={options}
+        />
+      </InputGroup>
+    </FormGroup>
+  )
+}

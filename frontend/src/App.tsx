@@ -8,6 +8,11 @@ import Loading from './components/Loading'
 import { fundsAction } from './helper'
 import { errHandler } from './helper/errorHandler'
 import Antigua from './pages/Antigua'
+import Business from './pages/Business'
+import Family from './pages/Family'
+import General from './pages/General'
+import StKitts from './pages/StKitts'
+import Study from './pages/Study'
 
 function App() {
   const [loading, setLoading] = useState(false)
@@ -61,8 +66,26 @@ function App() {
               />
             )}
           />
-
-          {/* <Route
+          <Route
+            path={`${process.env.PUBLIC_URL}/stkitts`}
+            component={() => (
+              <StKitts
+                countries={countries.map(
+                  (country: { name: string; id: number }) => ({
+                    name: country.name,
+                    value: country.id,
+                  })
+                )}
+                worthRanges={fundsAction(worthRanges)}
+                investRanges={fundsAction(investRanges)}
+              />
+            )}
+          />
+          <Route
+            path={`${process.env.PUBLIC_URL}/general`}
+            component={General}
+          />
+          <Route
             path={`${process.env.PUBLIC_URL}/business-immigration`}
             component={Business}
           />
@@ -74,7 +97,7 @@ function App() {
             path={`${process.env.PUBLIC_URL}/study-visa`}
             component={Study}
           />
-          <Route path={`/`} component={General} /> */}
+          <Route path={`/`} component={General} />
         </Switch>
       </BrowserRouter>
     </>

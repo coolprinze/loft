@@ -30,6 +30,41 @@ const AntiguaImmigrant = sequelize.define('antigua_immigrant', {
   //   type: DataTypes.STRING,
   //   allowNull: false,
   // },
+
+  married: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  old_dependents: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+  young_dependents: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+  teen_dependents: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+  average_dependents: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+  rejected: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  deported: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
   contact_medium: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -54,5 +89,13 @@ AntiguaImmigrant.beforeCreate((immigrant) => {
 
 AntiguaImmigrant.belongsTo(Country, { foreignKey: 'residence' })
 AntiguaImmigrant.belongsTo(Country, { foreignKey: 'nationality' })
+AntiguaImmigrant.belongsToMany(Country, {
+  through: 'rejected_countries',
+  as: 'RejectedCountries',
+})
+AntiguaImmigrant.belongsToMany(Country, {
+  through: 'deported_countries',
+  as: 'DeportedCountries',
+})
 
 module.exports = AntiguaImmigrant

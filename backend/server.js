@@ -5,11 +5,8 @@ const { mailer } = require('./config/mailer.js')
 const { errorHandler, notFound } = require('./middleware/errorMiddleware.js')
 const cors = require('cors')
 const immigrantRoutes = require('./routes/immigrants.js')
-// const Countries = require('./data/countries.js')
-// const Country = require('./models/Country.js')
-const Funds = require('./data/funds.js')
 const utilityRoutes = require('./routes/Utilities.js')
-const Fund = require('./models/Fund.js')
+const seederRoutes = require('./routes/seeders.js')
 
 config()
 
@@ -29,31 +26,9 @@ sequelize
   })
 
 // sequelize
-//   .sync({ force: true })
+//   .sync({})
 //   .then((res) => console.log(res))
 //   .catch((err) => console.log(err))
-
-// app.get('/create-countries', async (req, res) => {
-//   Country.bulkCreate(
-//     Countries.map((country) => ({
-//       name: country.name,
-//       desc: country.name,
-//       code: country.code,
-//       flag: country.flag,
-//       slug: country.name
-//         .toLowerCase()
-//         .replace(/[^\w ]+/g, '')
-//         .replace(/ +/g, '-'),
-//     }))
-//   )
-//     .then((countries) => res.send(countries))
-//     .catch((err) => res.send(err))
-// })
-// app.get('/create-funds', async (req, res) => {
-//   Fund.bulkCreate(Funds)
-//     .then((funds) => res.send(funds))
-//     .catch((err) => res.send(err))
-// })
 
 app.use(express.json())
 
@@ -65,9 +40,10 @@ var corsOptions = {
   ],
   optionsSuccessStatus: 200,
 }
-app.get('/', (req, res) => res.send('API is running...'))
-app.use('/api/utility', cors(corsOptions), utilityRoutes)
-app.use('/api/immigrants', cors(corsOptions), immigrantRoutes)
+app.get('/test', (req, res) => res.send('API is running...'))
+app.get('/seed', seederRoutes)
+app.use('/utilities', cors(corsOptions), utilityRoutes)
+app.use('/immigrants', cors(corsOptions), immigrantRoutes)
 
 app.use(notFound)
 

@@ -10,7 +10,9 @@
   box-shadow: initial !important;
   border-width: 0 !important;
 } */
-
+.custom-switch {
+  z-index: 0 !important;
+}
 
 /* Datetime Styles Start  */
 .rdt {
@@ -26,7 +28,7 @@
   margin-top: 1px;
   z-index: 99999 !important;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #f9f9f9;
 }
 
@@ -202,7 +204,7 @@ td.rdtYear:hover {
   display: inline-block;
 }
 
-.rdtCounters>div {
+.rdtCounters > div {
   float: left;
 }
 

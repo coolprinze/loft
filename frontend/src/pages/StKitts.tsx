@@ -3,23 +3,17 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { animateScroll as scroll } from 'react-scroll'
 import { toast } from 'react-toastify'
-import { Button, Col, Collapse, Container, Row } from 'reactstrap'
+import { Button, Col, Collapse, Row } from 'reactstrap'
 import validator from 'validator'
 import Alert from '../components/Alert'
-import {
-  CheckBoxInput,
-  CustomSelectGroup,
-  RadioInput,
-  SelectGroup,
-  TextInputGroup,
-} from '../components/Form'
+import { CheckBoxInput, SelectGroup, TextInputGroup } from '../components/Form'
 import Loading from '../components/Loading'
 import { apiURL } from '../config'
 import { errHandler, handleErr } from '../helper/errorHandler'
+import MainLayout from '../layouts/MainLayout'
 import { errorKey } from '../types'
-import { maritalOptions } from './General'
 
-const Antigua = ({
+const StKitts = ({
   countries,
   worthRanges: netWorthRange,
   investRanges: investmentRange,
@@ -36,10 +30,6 @@ const Antigua = ({
       'WhatsApp',
       'Wechat',
     ],
-    multiSelectCountries = countries.map((country: any) => ({
-      ...country,
-      label: country.name,
-    })),
     initialState = {
       first_name: '',
       last_name: '',
@@ -53,15 +43,6 @@ const Antigua = ({
       date: '',
       contact_medium: [],
       referee: '',
-      married: '',
-      old_dependents: '',
-      young_dependents: '',
-      teen_dependents: '',
-      average_dependents: '',
-      rejected: '0',
-      rejected_countries: [],
-      deported: '0',
-      deported_countries: [],
     }
 
   const [userData, setUserData] = useState(initialState),
@@ -127,14 +108,12 @@ const Antigua = ({
             Accept: 'application/json',
           },
         }
-        await axios.post(`${apiURL}/immigrants/antigua`, data, config)
-        toast.success('Your application was successful')
-        window.location.href = '/antigua-thanks'
-        // setUserData(initialState)
+        await axios.post(`${apiURL}/immigrants/StKitts`, data, config)
+        toast.success('')
+        window.location.href = '/StKitts-thanks'
+        setUserData(initialState)
         setLoading(false)
       } catch (err) {
-        console.log(userData)
-
         setLoading(false)
         setAlert(handleErr(err))
         errHandler(err, toast.error)
@@ -151,26 +130,12 @@ const Antigua = ({
           contact_medium.push(e.target.value)
         else {
           contact_medium = contact_medium.filter(
-            (contact) => contact !== e.target.value
+            (interest) => interest !== e.target.value
           )
         }
         setUserData({
           ...userData,
           contact_medium,
-        })
-      } else if (arg === 'customSelectRejected') {
-        // console.log(multiSelectCountries)
-
-        setUserData({
-          ...userData,
-          rejected_countries: e ? e.map((country: any) => country.value) : [],
-        })
-      } else if (arg === 'customSelectDeported') {
-        // console.log(multiSelectCountries)
-
-        setUserData({
-          ...userData,
-          deported_countries: e ? e.map((country: any) => country.value) : [],
         })
       } else
         setUserData({
@@ -186,10 +151,6 @@ const Antigua = ({
         nationality,
         residence,
         phone,
-        old_dependents,
-        young_dependents,
-        teen_dependents,
-        average_dependents,
       } = userData
 
       return (
@@ -269,60 +230,7 @@ const Antigua = ({
                   onChange={onChange}
                 />
               </Col>
-              <Col lg={4} sm={6} className='py-1'>
-                <RadioInput
-                  invalid={hasErrors('married')}
-                  type='radio'
-                  name='married'
-                  id='married'
-                  title='Martal Status'
-                  inline
-                  required
-                  options={maritalOptions}
-                  onSelect={onChange}
-                />
-              </Col>
-              <Col lg={4} sm={6} className='py-1'>
-                <TextInputGroup
-                  invalid={hasErrors('old_dependents')}
-                  label='Number of Dependents Parent (ages 58 and above)'
-                  name='old_dependents'
-                  value={old_dependents}
-                  type='number'
-                  onChange={onChange}
-                />
-              </Col>
-              <Col md={4} sm={6} className='py-1'>
-                <TextInputGroup
-                  invalid={hasErrors('young_dependents')}
-                  label='Number of Dependents under 12'
-                  name='young_dependents'
-                  value={young_dependents}
-                  type='number'
-                  onChange={onChange}
-                />
-              </Col>
-              <Col md={4} sm={6} className='py-1'>
-                <TextInputGroup
-                  invalid={hasErrors('teen_dependents')}
-                  label='Number of Dependents over 12 and under 18'
-                  name='teen_dependents'
-                  value={teen_dependents}
-                  type='number'
-                  onChange={onChange}
-                />
-              </Col>
-              <Col md={4} sm={6} className='py-1'>
-                <TextInputGroup
-                  invalid={hasErrors('average_dependents')}
-                  label='Number of Dependents over 18 and under 28'
-                  name='average_dependents'
-                  value={average_dependents}
-                  type='number'
-                  onChange={onChange}
-                />
-              </Col>
-              <Col className='text-right' sm='12'>
+              <Col className='text-right'>
                 <Button
                   color='danger'
                   onClick={() => validateStep(1)}
@@ -374,7 +282,7 @@ const Antigua = ({
                   placeholder='PLEASE SELECT'
                   onSelect={onChange}
                   required
-                  label='Funds Available to Invest in Antigua & Barbuda - citizenship by investment'
+                  label='Funds Available to Invest in St Kitts & Nevis - Citizenship by Investment'
                 />
               </Col>
 
@@ -394,7 +302,7 @@ const Antigua = ({
       )
     },
     section3 = (isOpen: number) => {
-      const { referee, rejected, deported } = userData
+      const { referee } = userData
 
       return (
         <div className='section mb-2 p-3'>
@@ -407,62 +315,6 @@ const Antigua = ({
           </Link>
           <Collapse isOpen={isOpen === 3}>
             <Row>
-              <Col sm={6} className='py-1'>
-                <RadioInput
-                  invalid={hasErrors('rejected')}
-                  type='radio'
-                  value={rejected}
-                  name='rejected'
-                  id='rejected'
-                  title='Have you been denied visa to any country within the last ten years?'
-                  inline
-                  required
-                  options={[
-                    { label: 'Yes', value: 1 },
-                    { label: 'No', value: 0 },
-                  ]}
-                  onSelect={onChange}
-                />
-                {rejected == '1' && (
-                  <CustomSelectGroup
-                    options={multiSelectCountries}
-                    isMulti
-                    required
-                    label='What country? (you can select more than one)'
-                    placeholder='Select counties?'
-                    onSelect={(e: any) => onChange(e, 'customSelectRejected')}
-                  />
-                )}
-              </Col>
-
-              <Col sm={6} className='py-1'>
-                <RadioInput
-                  invalid={hasErrors('deported')}
-                  type='radio'
-                  value={deported}
-                  name='deported'
-                  id='deported'
-                  title='Have you been deported or asked to leave any country?'
-                  inline
-                  required
-                  options={[
-                    { label: 'Yes', value: 1 },
-                    { label: 'No', value: 0 },
-                  ]}
-                  onSelect={onChange}
-                />
-                {deported == '1' && (
-                  <CustomSelectGroup
-                    options={multiSelectCountries}
-                    isMulti
-                    required
-                    label='What country? (you can select more than one)'
-                    placeholder='Select counties?'
-                    onSelect={(e: any) => onChange(e, 'customSelectDeported')}
-                  />
-                )}
-              </Col>
-
               <CheckBoxInput
                 colProps={{ xs: 6, sm: 4 }}
                 id=''
@@ -516,28 +368,18 @@ const Antigua = ({
     }
 
   return (
-    <>
-      <div className='header-wrapper'>
-        <div className='container-fluid header py-3'>
-          <Container>
-            <h2>Free Antigua & Barbuda Assessment Form</h2>
-          </Container>
+    <MainLayout>
+      <>
+        <Loading show={loading} />
+        {alert && <Alert alert={alert} toggle={() => setAlert(false)} />}
+        <div>
+          {section1(isOpen)}
+          {section2(isOpen)}
+          {section3(isOpen)}
         </div>
-      </div>
-
-      <Container className='py-3'>
-        <>
-          <Loading show={loading} />
-          {alert && <Alert alert={alert} toggle={() => setAlert(false)} />}
-          <div>
-            {section1(isOpen)}
-            {section2(isOpen)}
-            {section3(isOpen)}
-          </div>
-        </>
-      </Container>
-    </>
+      </>
+    </MainLayout>
   )
 }
 
-export default Antigua
+export default StKitts

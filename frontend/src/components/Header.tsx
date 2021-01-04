@@ -19,9 +19,6 @@ const Header = () => {
                 <NavLink
                   className='nav-link'
                   to={`${process.env.PUBLIC_URL}/general`}
-                  onClick={() =>
-                    (window.location.href = `${process.env.PUBLIC_URL}/general`)
-                  }
                   activeClassName='active'
                 >
                   General Immigration
@@ -31,9 +28,6 @@ const Header = () => {
                 <NavLink
                   className='nav-link'
                   to={`${process.env.PUBLIC_URL}/business-immigration`}
-                  onClick={() =>
-                    (window.location.href = `${process.env.PUBLIC_URL}/business-immigration`)
-                  }
                   activeClassName='active'
                 >
                   Business Immigration
@@ -44,9 +38,6 @@ const Header = () => {
                 <NavLink
                   className='nav-link'
                   to={`${process.env.PUBLIC_URL}/family-sponsorship`}
-                  onClick={() =>
-                    (window.location.href = `${process.env.PUBLIC_URL}/family-sponsorship`)
-                  }
                   activeClassName='active'
                 >
                   Family Sponsorship
@@ -56,26 +47,29 @@ const Header = () => {
                 <NavLink
                   className='nav-link'
                   to={`${process.env.PUBLIC_URL}/study-visa`}
-                  onClick={() =>
-                    (window.location.href = `${process.env.PUBLIC_URL}/study-visa`)
-                  }
                   activeClassName='active'
                 >
                   Study Visa
+                </NavLink>
+              </li>
+              {/* <li className='nav-item mx-3'>
+                <NavLink
+                  className='nav-link'
+                  to={`${process.env.PUBLIC_URL}/antigua`}
+                  activeClassName='active'
+                >
+                  Antigua & Barbuda
                 </NavLink>
               </li>
               <li className='nav-item mx-3'>
                 <NavLink
                   className='nav-link'
                   to={`${process.env.PUBLIC_URL}/antigua`}
-                  onClick={() =>
-                    (window.location.href = `${process.env.PUBLIC_URL}/antigua`)
-                  }
                   activeClassName='active'
                 >
-                  Antigua & Barbuda
+                  St Kitts & Nevis
                 </NavLink>
-              </li>
+              </li> */}
             </ul>
           </nav>
         </div>
