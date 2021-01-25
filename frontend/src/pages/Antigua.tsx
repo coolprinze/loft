@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { animateScroll as scroll } from 'react-scroll'
 import { toast } from 'react-toastify'
-import { Button, Col, Collapse, Container, Row } from 'reactstrap'
+import { Button, Col, Collapse, Row } from 'reactstrap'
 import validator from 'validator'
 import Alert from '../components/Alert'
 import {
@@ -16,6 +16,7 @@ import {
 import Loading from '../components/Loading'
 import { apiURL } from '../config'
 import { errHandler, handleErr } from '../helper/errorHandler'
+import MainLayout from '../layouts/MainLayout'
 import { errorKey } from '../types'
 import { maritalOptions } from './General'
 
@@ -81,6 +82,7 @@ const Antigua = ({
         phone: phn,
         invest_funds,
         networth,
+        married,
       } = userData
 
       const errors: any = []
@@ -92,6 +94,7 @@ const Antigua = ({
         !last_name && errors.push('last_name')
         !nationality && errors.push('nationality')
         !residence && errors.push('residence')
+        !married && errors.push('married')
         !validator.isEmail(email) && errors.push('email')
         !validator.isMobilePhone(phone) && errors.push('phone')
 
@@ -130,11 +133,9 @@ const Antigua = ({
         await axios.post(`${apiURL}/immigrants/antigua`, data, config)
         toast.success('Your application was successful')
         window.location.href = '/antigua-thanks'
-        // setUserData(initialState)
+        setUserData(initialState)
         setLoading(false)
       } catch (err) {
-        console.log(userData)
-
         setLoading(false)
         setAlert(handleErr(err))
         errHandler(err, toast.error)
@@ -516,27 +517,17 @@ const Antigua = ({
     }
 
   return (
-    <>
-      <div className='header-wrapper'>
-        <div className='container-fluid header py-3'>
-          <Container>
-            <h2>Free Antigua & Barbuda Assessment Form</h2>
-          </Container>
+    <MainLayout title='Antigua & Barbuda'>
+      <>
+        <Loading show={loading} />
+        {alert && <Alert alert={alert} toggle={() => setAlert(false)} />}
+        <div>
+          {section1(isOpen)}
+          {section2(isOpen)}
+          {section3(isOpen)}
         </div>
-      </div>
-
-      <Container className='py-3'>
-        <>
-          <Loading show={loading} />
-          {alert && <Alert alert={alert} toggle={() => setAlert(false)} />}
-          <div>
-            {section1(isOpen)}
-            {section2(isOpen)}
-            {section3(isOpen)}
-          </div>
-        </>
-      </Container>
-    </>
+      </>
+    </MainLayout>
   )
 }
 

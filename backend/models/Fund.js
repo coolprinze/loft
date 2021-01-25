@@ -1,6 +1,5 @@
 const sequelize = require('../config/db.js')
 const Sequelize = require('sequelize')
-const AntiguaImmigrant = require('./AntiguaImmigrant.js')
 
 const { DataTypes } = Sequelize
 
@@ -20,8 +19,5 @@ const Fund = sequelize.define('fund', {
     type: DataTypes.STRING,
   },
 })
-
-Fund.hasMany(AntiguaImmigrant, { foreignKey: 'invest_funds' })
-Fund.hasMany(AntiguaImmigrant, { foreignKey: 'networth' })
 
 module.exports = Fund

@@ -449,7 +449,7 @@ class Family extends Component {
     const { isOpen, loading } = this.state
 
     return (
-      <MainLayout>
+      <MainLayout title='Family' showMenu>
         <>
           <Loading show={loading} />
           <div>

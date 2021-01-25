@@ -32,4 +32,48 @@ const Country = sequelize.define('country', {
   },
 })
 
-module.exports = Country
+Country.prototype.getRejectees = async (options) => {
+  const antiguaImmigrants = await this.getAntiguaImmigrants(options)
+  const stkittsImmigrants = await this.getStkittsImmigrants(options)
+  return antiguaImmigrants.concat(stkittsImmigrants)
+}
+
+Country.prototype.getDeportees = async (options) => {
+  const antiguaImmigrants = await this.getAntiguaImmigrants(options)
+  const stkittsImmigrants = await this.getStkittsImmigrants(options)
+  return antiguaImmigrants.concat(stkittsImmigrants)
+}
+
+const Rejected_Countries = sequelize.define('rejected_countries', {
+  countryId: {
+    type: DataTypes.INTEGER,
+    unique: 'tt_unique_constraint',
+  },
+  rejectedId: {
+    type: DataTypes.INTEGER,
+    unique: 'tt_unique_constraint',
+    references: null,
+  },
+  rejectedType: {
+    type: DataTypes.STRING,
+    unique: 'tt_unique_constraint',
+  },
+})
+
+const Deported_Countries = sequelize.define('deported_countries', {
+  countryId: {
+    type: DataTypes.INTEGER,
+    unique: 'tt_unique_constraint',
+  },
+  deportedId: {
+    type: DataTypes.INTEGER,
+    unique: 'tt_unique_constraint',
+    references: null,
+  },
+  deportedType: {
+    type: DataTypes.STRING,
+    unique: 'tt_unique_constraint',
+  },
+})
+
+module.exports = { Country, Rejected_Countries, Deported_Countries }

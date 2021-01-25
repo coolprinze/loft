@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const Countries = require('../data/countries')
 const Funds = require('../data/funds')
-const Country = require('../models/Country')
+const { Country } = require('../models/Country')
 const Fund = require('../models/Fund')
 
 const createSeedData = asyncHandler(async (req, res) => {

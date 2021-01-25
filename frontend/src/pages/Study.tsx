@@ -648,7 +648,7 @@ class Study extends Component {
   render() {
     const { isOpen, loading } = this.state
     return (
-      <MainLayout>
+      <MainLayout title='Student' showMenu>
         <>
           <Loading show={loading} />
           <div>

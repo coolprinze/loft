@@ -64,7 +64,7 @@ const successEmailTemplate = (immigrant) => {
     <p>Hello ${immigrant.first_name},</p>
     <p>
       Thank you for taking the time to fill the assessment form, we will
-      review it and get back to in few minutes.
+      review it and get back to you in few minutes.
     </p>
     <p>Warm regards<br />
       <strong>Sophia Miles</strong><br />

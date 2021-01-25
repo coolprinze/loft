@@ -1,6 +1,13 @@
 const sequelize = require('../config/db.js')
 const Sequelize = require('sequelize')
-const Country = require('./Country')
+const { Country, Rejected_Countries, Deported_Countries } = require('./Country')
+const {
+  successEmailTemplate,
+  reviewedEmailTemplate,
+  sendMail,
+} = require('../mail/index.js')
+const MailQueue = require('./MailQueue.js')
+const Fund = require('./Fund')
 
 const { DataTypes } = Sequelize
 
@@ -75,6 +82,24 @@ const AntiguaImmigrant = sequelize.define('antigua_immigrant', {
   },
 })
 
+AntiguaImmigrant.belongsTo(Fund, {
+  foreignKey: 'invest_funds',
+  as: 'investRange',
+})
+AntiguaImmigrant.belongsTo(Fund, {
+  foreignKey: 'networth',
+  as: 'networthRange',
+})
+AntiguaImmigrant.belongsTo(Country, {
+  foreignKey: 'residence',
+  as: 'residenceCountry',
+})
+AntiguaImmigrant.belongsTo(Country, {
+  foreignKey: 'nationality',
+  as: 'nationalityCountry',
+})
+AntiguaImmigrant.hasMany(MailQueue)
+
 AntiguaImmigrant.beforeCreate((immigrant) => {
   let { contact_medium } = immigrant,
     contactString = ''
@@ -87,15 +112,76 @@ AntiguaImmigrant.beforeCreate((immigrant) => {
   }
 })
 
-AntiguaImmigrant.belongsTo(Country, { foreignKey: 'residence' })
-AntiguaImmigrant.belongsTo(Country, { foreignKey: 'nationality' })
-AntiguaImmigrant.belongsToMany(Country, {
-  through: 'rejected_countries',
-  as: 'RejectedCountries',
+AntiguaImmigrant.afterCreate((immigrant) => {
+  let { email } = immigrant
+  const date = new Date()
+  date.setMinutes(date.getMinutes() + 10)
+  console.log(`Will send 2nd mail to ${email} on: `, date)
+  sendMail(
+    {
+      to: email,
+      from: {
+        name: 'Loft Immigration | Antigua Assessment',
+        address: 'immigrants@loftimmigration.com',
+      },
+      subject: 'Application Successful',
+      html: successEmailTemplate(immigrant),
+    },
+    (res) => console.log(res.envelope || res)
+  )
+  immigrant.createMailQueue({
+    to: email,
+    from_name: 'Loft Immigration | Antigua Assessment',
+    from_address: 'immigrants@loftimmigration.com',
+    subject: 'Application Reviewed',
+    message: reviewedEmailTemplate(immigrant),
+    title: '2nd Mail to Antigua Immigrant',
+    schedule: date,
+  })
 })
+
 AntiguaImmigrant.belongsToMany(Country, {
-  through: 'deported_countries',
+  through: {
+    model: Rejected_Countries,
+    unique: false,
+    scope: {
+      rejectedType: 'antigua',
+    },
+  },
+  as: 'RejectedCountries',
+  foreignKey: 'rejectedId',
+  constraints: false,
+})
+
+AntiguaImmigrant.belongsToMany(Country, {
+  through: {
+    model: Deported_Countries,
+    unique: false,
+    scope: {
+      deportedType: 'antigua',
+    },
+  },
   as: 'DeportedCountries',
+  foreignKey: 'deportedId',
+  constraints: false,
+})
+
+Country.belongsToMany(AntiguaImmigrant, {
+  through: {
+    model: Deported_Countries,
+    unique: false,
+  },
+  foreignKey: 'countryId',
+  constraints: false,
+})
+
+Country.belongsToMany(AntiguaImmigrant, {
+  through: {
+    model: Rejected_Countries,
+    unique: false,
+  },
+  foreignKey: 'countryId',
+  constraints: false,
 })
 
 module.exports = AntiguaImmigrant

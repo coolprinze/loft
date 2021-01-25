@@ -179,7 +179,7 @@ export const RadioInput = ({
   title?: string
   name: string
   id?: any
-  required?: boolean | false
+  required?: boolean
   options: radioOptions[]
   inline?: boolean | false
   onSelect: (e: any) => void

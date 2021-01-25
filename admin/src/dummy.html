@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="form-title column one">
+      <label
+        >Title [checkbox* Title class:title use_label_element "Mr" "Mrs" "Miss"
+        "Ms"]
+      </label>
+    </div>
+
+    <div class="form-sname column one-third">
+      <label>Surname [text* Surname]</label>
+    </div>
+
+    <div class="form-fname column one-third">
+      <label>First Name [text* FirstName]</label>
+    </div>
+
+    <div class="form-oname column one-third">
+      <label>Other Names [text* OtherNames]</label>
+    </div>
+
+    <div class="column one-second">
+      <label
+        >Country of Origin [countrytext* country-of-origin
+        id:country-of-origin]</label
+      >
+    </div>
+
+    <div class="form-email column one-second">
+      <label> Email Address [email* Email] </label>
+    </div>
+
+    <div class="form-gender column one">
+      <label
+        >Gender [checkbox* Gender use_label_element "Male" "Female"]
+      </label>
+    </div>
+
+    <div class="column one-second">
+      <label
+        >Phone Number 1 [intl_tel* your-phone1 initialCountry:us
+        preferredCountries:gb-us-ng]</label
+      >
+    </div>
+
+    <div class="column one-second">
+      <label
+        >Phone Number 2 [intl_tel your-phone2 initialCountry:us
+        preferredCountries:gb-us-ng]</label
+      >
+    </div>
+
+    <div class="form-identification column one">
+      <label
+        >Means of Identification [checkbox* IDmeans use_label_element "Driver's
+        License" "NIMC ID Card" "Voters' Card" "International Passport"]
+      </label>
+    </div>
+
+    <div class="form-referral column one">
+      <label
+        >How did you hear about ABC Finrock [checkbox* Referral
+        use_label_element "SMS" "Email" "Flyers" "Radio" "Social Media" "TV"
+        "Billboard" "Website" "Referral" "Salesperson"]
+      </label>
+    </div>
+
+    <div class="form-others column one">
+      <label>Others (Please Specify) [text* Othersref]</label>
+    </div>
+
+    <div class="form-terms column one">
+      [acceptance acceptance] I have fully read and understood the terms and
+      conditions in this ABC FINROCK application form. [/acceptance]
+    </div>
+
+    <div class="one-third submit-button">
+      [submit class:button_full_width "SUBMIT"]
+    </div>
+  </body>
+</html>

@@ -6,14 +6,21 @@ import { toast } from 'react-toastify'
 import { Button, Col, Collapse, Row } from 'reactstrap'
 import validator from 'validator'
 import Alert from '../components/Alert'
-import { CheckBoxInput, SelectGroup, TextInputGroup } from '../components/Form'
+import {
+  CheckBoxInput,
+  CustomSelectGroup,
+  RadioInput,
+  SelectGroup,
+  TextInputGroup,
+} from '../components/Form'
 import Loading from '../components/Loading'
 import { apiURL } from '../config'
 import { errHandler, handleErr } from '../helper/errorHandler'
 import MainLayout from '../layouts/MainLayout'
 import { errorKey } from '../types'
+import { maritalOptions } from './General'
 
-const StKitts = ({
+const Stkitts = ({
   countries,
   worthRanges: netWorthRange,
   investRanges: investmentRange,
@@ -30,6 +37,10 @@ const StKitts = ({
       'WhatsApp',
       'Wechat',
     ],
+    multiSelectCountries = countries.map((country: any) => ({
+      ...country,
+      label: country.name,
+    })),
     initialState = {
       first_name: '',
       last_name: '',
@@ -43,6 +54,15 @@ const StKitts = ({
       date: '',
       contact_medium: [],
       referee: '',
+      married: '',
+      old_dependents: '',
+      young_dependents: '',
+      teen_dependents: '',
+      average_dependents: '',
+      rejected: '0',
+      rejected_countries: [],
+      deported: '0',
+      deported_countries: [],
     }
 
   const [userData, setUserData] = useState(initialState),
@@ -62,6 +82,7 @@ const StKitts = ({
         phone: phn,
         invest_funds,
         networth,
+        married,
       } = userData
 
       const errors: any = []
@@ -73,6 +94,7 @@ const StKitts = ({
         !last_name && errors.push('last_name')
         !nationality && errors.push('nationality')
         !residence && errors.push('residence')
+        !married && errors.push('married')
         !validator.isEmail(email) && errors.push('email')
         !validator.isMobilePhone(phone) && errors.push('phone')
 
@@ -108,9 +130,9 @@ const StKitts = ({
             Accept: 'application/json',
           },
         }
-        await axios.post(`${apiURL}/immigrants/StKitts`, data, config)
-        toast.success('')
-        window.location.href = '/StKitts-thanks'
+        await axios.post(`${apiURL}/immigrants/stkitts`, data, config)
+        toast.success('Your application was successful')
+        window.location.href = '/stkitts-thanks'
         setUserData(initialState)
         setLoading(false)
       } catch (err) {
@@ -130,12 +152,26 @@ const StKitts = ({
           contact_medium.push(e.target.value)
         else {
           contact_medium = contact_medium.filter(
-            (interest) => interest !== e.target.value
+            (contact) => contact !== e.target.value
           )
         }
         setUserData({
           ...userData,
           contact_medium,
+        })
+      } else if (arg === 'customSelectRejected') {
+        // console.log(multiSelectCountries)
+
+        setUserData({
+          ...userData,
+          rejected_countries: e ? e.map((country: any) => country.value) : [],
+        })
+      } else if (arg === 'customSelectDeported') {
+        // console.log(multiSelectCountries)
+
+        setUserData({
+          ...userData,
+          deported_countries: e ? e.map((country: any) => country.value) : [],
         })
       } else
         setUserData({
@@ -151,6 +187,10 @@ const StKitts = ({
         nationality,
         residence,
         phone,
+        old_dependents,
+        young_dependents,
+        teen_dependents,
+        average_dependents,
       } = userData
 
       return (
@@ -230,7 +270,60 @@ const StKitts = ({
                   onChange={onChange}
                 />
               </Col>
-              <Col className='text-right'>
+              <Col lg={4} sm={6} className='py-1'>
+                <RadioInput
+                  invalid={hasErrors('married')}
+                  type='radio'
+                  name='married'
+                  id='married'
+                  title='Martal Status'
+                  inline
+                  required
+                  options={maritalOptions}
+                  onSelect={onChange}
+                />
+              </Col>
+              <Col lg={4} sm={6} className='py-1'>
+                <TextInputGroup
+                  invalid={hasErrors('old_dependents')}
+                  label='Number of Dependents Parent (ages 58 and above)'
+                  name='old_dependents'
+                  value={old_dependents}
+                  type='number'
+                  onChange={onChange}
+                />
+              </Col>
+              <Col md={4} sm={6} className='py-1'>
+                <TextInputGroup
+                  invalid={hasErrors('young_dependents')}
+                  label='Number of Dependents under 12'
+                  name='young_dependents'
+                  value={young_dependents}
+                  type='number'
+                  onChange={onChange}
+                />
+              </Col>
+              <Col md={4} sm={6} className='py-1'>
+                <TextInputGroup
+                  invalid={hasErrors('teen_dependents')}
+                  label='Number of Dependents over 12 and under 18'
+                  name='teen_dependents'
+                  value={teen_dependents}
+                  type='number'
+                  onChange={onChange}
+                />
+              </Col>
+              <Col md={4} sm={6} className='py-1'>
+                <TextInputGroup
+                  invalid={hasErrors('average_dependents')}
+                  label='Number of Dependents over 18 and under 28'
+                  name='average_dependents'
+                  value={average_dependents}
+                  type='number'
+                  onChange={onChange}
+                />
+              </Col>
+              <Col className='text-right' sm='12'>
                 <Button
                   color='danger'
                   onClick={() => validateStep(1)}
@@ -302,7 +395,7 @@ const StKitts = ({
       )
     },
     section3 = (isOpen: number) => {
-      const { referee } = userData
+      const { referee, rejected, deported } = userData
 
       return (
         <div className='section mb-2 p-3'>
@@ -315,6 +408,62 @@ const StKitts = ({
           </Link>
           <Collapse isOpen={isOpen === 3}>
             <Row>
+              <Col sm={6} className='py-1'>
+                <RadioInput
+                  invalid={hasErrors('rejected')}
+                  type='radio'
+                  value={rejected}
+                  name='rejected'
+                  id='rejected'
+                  title='Have you been denied visa to any country within the last ten years?'
+                  inline
+                  required
+                  options={[
+                    { label: 'Yes', value: 1 },
+                    { label: 'No', value: 0 },
+                  ]}
+                  onSelect={onChange}
+                />
+                {rejected == '1' && (
+                  <CustomSelectGroup
+                    options={multiSelectCountries}
+                    isMulti
+                    required
+                    label='What country? (you can select more than one)'
+                    placeholder='Select counties?'
+                    onSelect={(e: any) => onChange(e, 'customSelectRejected')}
+                  />
+                )}
+              </Col>
+
+              <Col sm={6} className='py-1'>
+                <RadioInput
+                  invalid={hasErrors('deported')}
+                  type='radio'
+                  value={deported}
+                  name='deported'
+                  id='deported'
+                  title='Have you been deported or asked to leave any country?'
+                  inline
+                  required
+                  options={[
+                    { label: 'Yes', value: 1 },
+                    { label: 'No', value: 0 },
+                  ]}
+                  onSelect={onChange}
+                />
+                {deported == '1' && (
+                  <CustomSelectGroup
+                    options={multiSelectCountries}
+                    isMulti
+                    required
+                    label='What country? (you can select more than one)'
+                    placeholder='Select counties?'
+                    onSelect={(e: any) => onChange(e, 'customSelectDeported')}
+                  />
+                )}
+              </Col>
+
               <CheckBoxInput
                 colProps={{ xs: 6, sm: 4 }}
                 id=''
@@ -368,7 +517,7 @@ const StKitts = ({
     }
 
   return (
-    <MainLayout>
+    <MainLayout title='St. Kitts & Nevis'>
       <>
         <Loading show={loading} />
         {alert && <Alert alert={alert} toggle={() => setAlert(false)} />}
@@ -382,4 +531,4 @@ const StKitts = ({
   )
 }
 
-export default StKitts
+export default Stkitts

@@ -10,7 +10,8 @@
   box-shadow: initial !important;
   border-width: 0 !important;
 } */
-.custom-switch {
+.custom-switch,
+.custom-control {
   z-index: 0 !important;
 }
 

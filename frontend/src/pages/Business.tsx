@@ -352,7 +352,7 @@ class Business extends Component {
     const { isOpen, loading } = this.state
 
     return (
-      <MainLayout>
+      <MainLayout title='Business' showMenu>
         <>
           <Loading show={loading} />
           <div>

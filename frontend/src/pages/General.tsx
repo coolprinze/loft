@@ -118,6 +118,7 @@ const criminalOptions = [
 const educationProgram = [
   { name: 'Ph.D', value: 'Ph.D' },
   { name: "Master's", value: "Master's" },
+  { name: 'HND', value: 'HND' },
   { name: "Bachelor's - 4 years", value: "Bachelor's - 4 years" },
   { name: "Bachelor's - 3 years", value: "Bachelor's - 3 years" },
   { name: '3 year degree', value: '3 year degree' },
@@ -1735,7 +1736,7 @@ class General extends Component {
     } = this.state
 
     return (
-      <MainLayout>
+      <MainLayout showMenu>
         <>
           <Loading show={loading} />
           <div>

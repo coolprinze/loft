@@ -7,6 +7,11 @@ const cors = require('cors')
 const immigrantRoutes = require('./routes/immigrants.js')
 const utilityRoutes = require('./routes/Utilities.js')
 const seederRoutes = require('./routes/seeders.js')
+const Job = require('./cronjobs.js')
+const MailQueue = require('./models/MailQueue.js')
+const { sendMail } = require('./mail')
+const { Op } = require('sequelize')
+const userRoutes = require('./routes/userRoutes.js')
 
 config()
 
@@ -26,22 +31,50 @@ sequelize
   })
 
 // sequelize
-//   .sync({})
+//   .sync()
 //   .then((res) => console.log(res))
 //   .catch((err) => console.log(err))
+
+const job = Job('*/30 * * * * *', async () => {
+  const now = new Date(),
+    mails = await MailQueue.findAll({
+      where: { schedule: { [Op.lte]: now }, status: 'waiting' },
+    })
+
+  mails.every((mail) => {
+    const {
+      to,
+      from_name: name,
+      from_address: address,
+      subject,
+      message: html,
+      schedule,
+    } = mail
+    sendMail({ to, from: { name, address }, subject, html }, (res) => {
+      console.log(res.envelope || res)
+      if (res.envelope) {
+        mail.update({ status: 'sent' })
+        console.log(`Sent 2nd mail to ${email} on: `, schedule)
+      }
+    })
+  })
+})
+job.start()
 
 app.use(express.json())
 
 var corsOptions = {
   origin: [
     'http://localhost:3000',
+    'http://localhost:3001',
     'https://loftimmigration.com',
     'http://127.0.0.1:3000',
   ],
   optionsSuccessStatus: 200,
 }
 app.get('/test', (req, res) => res.send('API is running...'))
-app.get('/seed', seederRoutes)
+app.use('/seeds', seederRoutes)
+app.use('/users', cors(corsOptions), userRoutes)
 app.use('/utilities', cors(corsOptions), utilityRoutes)
 app.use('/immigrants', cors(corsOptions), immigrantRoutes)
 
