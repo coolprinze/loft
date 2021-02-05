@@ -10,7 +10,7 @@ const sendMail = (data, callback) =>
     console.log('email sent')
   })
 
-const successEmailTemplate = (immigrant) => {
+const successEmailTemplate = (immigrant, type = '') => {
     return `
 
   <div
@@ -56,7 +56,7 @@ const successEmailTemplate = (immigrant) => {
           color: #e50404;
         "
       >
-        Antigua Assessment
+        ${type} Assessment
       </h4>
     </div>
   </div>
@@ -209,7 +209,7 @@ const successEmailTemplate = (immigrant) => {
 
 `
   },
-  reviewedEmailTemplate = (immigrant) => {
+  reviewedEmailTemplate = (immigrant, type = '') => {
     return `
 
   <div
@@ -255,7 +255,7 @@ const successEmailTemplate = (immigrant) => {
           color: #e50404;
         "
       >
-        Antigua Assessment
+        ${type} Assessment
       </h4>
     </div>
   </div>

@@ -116,13 +116,14 @@ StkittsImmigrant.beforeCreate((immigrant) => {
 StkittsImmigrant.afterCreate((immigrant) => {
   let { email } = immigrant
   const date = new Date()
+  const type = 'St. Kitts'
   date.setMinutes(date.getMinutes() + 10)
   console.log(`Will send 2nd mail to ${email} on: `, date)
   sendMail(
     {
       to: email,
       from: {
-        name: 'Loft Immigration | St. Kitts Assessment',
+        name: `Loft Immigration | ${type} Assessment`,
         address: 'immigrants@loftimmigration.com',
       },
       subject: 'Application Successful',
@@ -132,11 +133,11 @@ StkittsImmigrant.afterCreate((immigrant) => {
   )
   immigrant.createMailQueue({
     to: email,
-    from_name: 'Loft Immigration | St. Kitts Assessment',
+    from_name: `Loft Immigration | ${type} Assessment`,
     from_address: 'immigrants@loftimmigration.com',
     subject: 'Application Reviewed',
     message: reviewedEmailTemplate(immigrant),
-    title: '2nd Mail to St. Kitts Immigrant',
+    title: `2nd Mail to ${type} Immigrant`,
     schedule: date,
   })
 })
