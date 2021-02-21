@@ -1,7 +1,13 @@
 const asyncHandler = require('express-async-handler')
+const { Op } = require('sequelize')
 const sequelize = require('../config/db.js')
-const AntiguaImmigrant = require('../models/AntiguaImmigrant.js')
-const StkittsImmigrant = require('../models/StkittsImmigrant.js')
+const {
+  StkittsImmigrant,
+  AntiguaImmigrant,
+  BusinessImmigrant,
+  EducationalHistory,
+  Spouse,
+} = require('../models/index.js')
 const { throwErr } = require('../utils/errorUtils.js')
 
 const registerImmigrant = asyncHandler(async (req, res) => {
@@ -38,17 +44,53 @@ const registerImmigrant = asyncHandler(async (req, res) => {
   })
 })
 
+const registerBusinessImmigrant = asyncHandler(async (req, res) => {
+  const data = req.body,
+    { email, phone } = data
+  const immigrantExists = await BusinessImmigrant.findOne({
+    where: {
+      [Op.or]: [{ email }, { phone }],
+    },
+  })
+  if (immigrantExists) {
+    res.status(400)
+    throwErr('Duplicate request')
+  }
+  await sequelize.transaction(async (transaction) => {
+    const immigrant = await BusinessImmigrant.create(data, {
+      include: [
+        EducationalHistory,
+        { model: Spouse, include: [EducationalHistory] },
+      ],
+      transaction,
+    })
+
+    if (immigrant) {
+      res.status(201).json({
+        success: true,
+        immigrant,
+      })
+    } else {
+      res.status(400)
+
+      throwErr('Invalid data')
+    }
+  })
+})
+
 const getImmigrants = asyncHandler(async (req, res) => {
   const Immigrant =
     req.params.type === 'antigua'
       ? AntiguaImmigrant
       : req.params.type === 'stkitts'
       ? StkittsImmigrant
+      : req.params.type === 'business'
+      ? BusinessImmigrant
       : throwErr('Invalid Url')
   const immigrants = await Immigrant.findAll({
-    include: { all: true },
+    include: { all: true, include: { all: true } },
   })
 
   res.send(immigrants)
 })
-module.exports = { registerImmigrant, getImmigrants }
+module.exports = { registerImmigrant, getImmigrants, registerBusinessImmigrant }

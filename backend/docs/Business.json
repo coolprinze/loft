@@ -1,0 +1,45 @@
+{
+  "createBusinessImmigrantData": {
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "phone": "",
+    "dob": "",
+    "managerial_experience": "",
+    "maritalStatusId": "",
+    "networth": "",
+    "invest_funds": "",
+    "residenceId": "",
+    "citizenshipId": "",
+    "educational_histoties": [
+      {
+        "from": "",
+        "to": "",
+        "school": "",
+        "city": "",
+        "countryId": "",
+        "stateId": "",
+        "immigrantId": ""
+      }
+    ],
+    "spouse": {
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "dob": "",
+      "country_of_birth": 0,
+      "immigrantId": 0,
+      "educational_histoties": [
+        {
+          "from": "",
+          "to": "",
+          "school": "",
+          "city": "",
+          "countryId": "",
+          "stateId": "",
+          "immigrantId": ""
+        }
+      ]
+    }
+  }
+}

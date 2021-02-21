@@ -1,13 +1,10 @@
 const sequelize = require('../config/db.js')
 const Sequelize = require('sequelize')
-const { Country, Rejected_Countries, Deported_Countries } = require('./Country')
 const {
   successEmailTemplate,
   reviewedEmailTemplate,
   sendMail,
 } = require('../mail/index.js')
-const MailQueue = require('./MailQueue.js')
-const Fund = require('./Fund')
 
 const { DataTypes } = Sequelize
 
@@ -82,25 +79,6 @@ const StkittsImmigrant = sequelize.define('stkitts_immigrant', {
   },
 })
 
-StkittsImmigrant.belongsTo(Fund, {
-  foreignKey: 'invest_funds',
-  as: 'investRange',
-})
-StkittsImmigrant.belongsTo(Fund, {
-  foreignKey: 'networth',
-  as: 'networthRange',
-})
-StkittsImmigrant.belongsTo(Country, {
-  foreignKey: 'residence',
-  as: 'residenceCountry',
-})
-StkittsImmigrant.belongsTo(Country, {
-  foreignKey: 'nationality',
-  as: 'nationalityCountry',
-})
-
-StkittsImmigrant.hasMany(MailQueue)
-
 StkittsImmigrant.beforeCreate((immigrant) => {
   let { contact_medium } = immigrant,
     contactString = ''
@@ -112,7 +90,6 @@ StkittsImmigrant.beforeCreate((immigrant) => {
     immigrant.contact_medium = contactString
   }
 })
-
 StkittsImmigrant.afterCreate((immigrant) => {
   let { email } = immigrant
   const date = new Date()
@@ -141,49 +118,4 @@ StkittsImmigrant.afterCreate((immigrant) => {
     schedule: date,
   })
 })
-
-StkittsImmigrant.belongsToMany(Country, {
-  through: {
-    model: Rejected_Countries,
-    unique: false,
-    scope: {
-      rejectedType: 'stkitt',
-    },
-  },
-  as: 'RejectedCountries',
-  foreignKey: 'rejectedId',
-  constraints: false,
-})
-
-StkittsImmigrant.belongsToMany(Country, {
-  through: {
-    model: Deported_Countries,
-    unique: false,
-    scope: {
-      deportedType: 'stkitt',
-    },
-  },
-  as: 'DeportedCountries',
-  foreignKey: 'deportedId',
-  constraints: false,
-})
-
-Country.belongsToMany(StkittsImmigrant, {
-  through: {
-    model: Deported_Countries,
-    unique: false,
-  },
-  foreignKey: 'countryId',
-  constraints: false,
-})
-
-Country.belongsToMany(StkittsImmigrant, {
-  through: {
-    model: Rejected_Countries,
-    unique: false,
-  },
-  foreignKey: 'countryId',
-  constraints: false,
-})
-
 module.exports = StkittsImmigrant

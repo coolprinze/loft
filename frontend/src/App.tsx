@@ -9,6 +9,7 @@ import { fundsAction } from './helper'
 import { errHandler } from './helper/errorHandler'
 import Antigua from './pages/Antigua'
 import Business from './pages/Business'
+import Business2 from './pages/Business2'
 import Family from './pages/Family'
 import General from './pages/General'
 import StKitts from './pages/StKitts'
@@ -87,7 +88,7 @@ function App() {
           />
           <Route
             path={`${process.env.PUBLIC_URL}/business-immigration`}
-            component={Business}
+            component={Business2}
           />
           <Route
             path={`${process.env.PUBLIC_URL}/family-sponsorship`}
