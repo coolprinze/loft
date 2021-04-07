@@ -2,35 +2,45 @@ import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { getCountries, getFundRanges } from './actions/Utilites'
+import {getUtilities} from './actions/Utilites'
 import './App.css'
 import Loading from './components/Loading'
 import { fundsAction } from './helper'
 import { errHandler } from './helper/errorHandler'
 import Antigua from './pages/Antigua'
-import Business from './pages/Business'
 import Business2 from './pages/Business2'
 import Family from './pages/Family'
-import General from './pages/General'
+import General from './pages/General2'
 import StKitts from './pages/StKitts'
 import Study from './pages/Study'
 
 function App() {
   const [loading, setLoading] = useState(false)
-  const [countries, setCountries]: [any, any] = useState([])
-  const [worthRanges, setWorthRanges] = useState([])
-  const [investRanges, setInvestRanges] = useState([])
+  const [
+    {
+      countries, 
+      worthRanges,
+      investRanges,
+      occupations,
+      degrees,
+      languages
+    }, 
+    setUtilities
+  ] = useState({
+    countries: [], 
+    worthRanges: [],
+    investRanges: [],
+    occupations: [],
+    degrees: [],
+    languages: []
+  })
 
   const initFunc = async () => {
     setLoading(true)
     try {
-      const res1 = await getCountries()
-      const res2 = await getFundRanges('worth')
-      const res3 = await getFundRanges('invest')
+      const res = await getUtilities()
 
-      setCountries(res1.data)
-      setWorthRanges(res2.data)
-      setInvestRanges(res3.data)
+      setUtilities(res.data)
 
       setLoading(false)
     } catch (err) {
@@ -82,13 +92,61 @@ function App() {
               />
             )}
           />
-          <Route
+          {/* <Route
             path={`${process.env.PUBLIC_URL}/general`}
             component={General}
-          />
+          /> */}
           <Route
             path={`${process.env.PUBLIC_URL}/business-immigration`}
-            component={Business2}
+            component={() => (
+              <Business2
+                countries={countries.map(
+                  (country: { name: string; id: number }) => ({
+                    name: country.name,
+                    value: country.id,
+                  })
+                )}
+                degrees={degrees.map(
+                  (degree: { title: string; id: number }) => ({
+                    name: degree.title,
+                    value: degree.id,
+                  })
+                )}
+                worthRanges={fundsAction(worthRanges)}
+                investRanges={fundsAction(investRanges)}
+              />
+            )}
+          />
+          <Route
+            path={`${process.env.PUBLIC_URL}/general`}
+            component={() => (
+              <General
+                countries={countries.map(
+                  (country: { name: string; id: number }) => ({
+                    name: country.name,
+                    value: country.id,
+                  })
+                )}
+                languages={languages.map(
+                  (language: { name: string; id: number }) => ({
+                    name: language.name,
+                    value: language.id,
+                  })
+                )}
+                degrees={degrees.map(
+                  (degree: { title: string; id: number }) => ({
+                    name: degree.title,
+                    value: degree.id,
+                  })
+                )}
+                occupations={occupations.map(
+                  (occupation: { name: string; id: number }) => ({
+                    name: occupation.name,
+                    value: occupation.id,
+                  })
+                )}
+              />
+            )}
           />
           <Route
             path={`${process.env.PUBLIC_URL}/family-sponsorship`}
@@ -98,7 +156,34 @@ function App() {
             path={`${process.env.PUBLIC_URL}/study-visa`}
             component={Study}
           />
-          <Route path={`/`} component={General} />
+          <Route path={`/`} component={() => (
+              <General
+                countries={countries.map(
+                  (country: { name: string; id: number }) => ({
+                    name: country.name,
+                    value: country.id,
+                  })
+                )}
+                languages={languages.map(
+                  (language: { name: string; id: number }) => ({
+                    name: language.name,
+                    value: language.id,
+                  })
+                )}
+                degrees={degrees.map(
+                  (degree: { title: string; id: number }) => ({
+                    name: degree.title,
+                    value: degree.id,
+                  })
+                )}
+                occupations={occupations.map(
+                  (occupation: { name: string; id: number }) => ({
+                    name: occupation.name,
+                    value: occupation.id,
+                  })
+                )}
+              />
+            )} />
         </Switch>
       </BrowserRouter>
     </>

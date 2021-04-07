@@ -12,6 +12,9 @@ const MailQueue = sequelize.define('mailQueue', {
   status: { type: DataTypes.STRING, defaultValue: 'waiting' },
   title: { type: DataTypes.STRING, allowNull: true },
   schedule: { type: DataTypes.DATE, allowNull: false },
+  immigrantType: DataTypes.STRING,
+
+  immigrantId: DataTypes.INTEGER,
 })
 
 // MailQueue.belongsTo(AntiguaImmigrant)

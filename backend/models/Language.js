@@ -15,20 +15,17 @@ const Language = sequelize.define('language', {
   },
 })
 
-const LanguageProficiencies = sequelize.define('language_proficiencies', {
-  languageId: {
-    type: DataTypes.INTEGER,
-    unique: 'tt_unique_constraint',
-  },
-  refId: {
-    type: DataTypes.INTEGER,
-    unique: 'tt_unique_constraint',
-    references: null,
-  },
-  immigrantType: {
+const LanguageProficiency = sequelize.define('language_proficiency', {
+  level: {
     type: DataTypes.STRING,
-    unique: 'tt_unique_constraint',
+    allowNull: false
   },
+  immigrantType: DataTypes.STRING,
+
+  refType: DataTypes.STRING,
+
+  immigrantId: DataTypes.INTEGER,
+  
 })
 
-module.exports = { Language, LanguageProficiencies }
+module.exports = { Language, LanguageProficiency }

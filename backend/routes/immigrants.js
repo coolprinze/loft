@@ -3,13 +3,15 @@ const {
   registerImmigrant,
   getImmigrants,
   registerBusinessImmigrant,
+  registerGeneralImmigrant,
 } = require('../controllers/immigrantController')
 const { protect, adminProtect } = require('../middleware/authMiddleware')
 
 const immigrantRoutes = Router()
 
 immigrantRoutes.get('/', (req, res) => res.json('Immigrant routes working '))
-immigrantRoutes.route('/business').post(registerBusinessImmigrant)
+immigrantRoutes.route('/businesses').post(registerBusinessImmigrant)
+immigrantRoutes.route('/generals').post(registerGeneralImmigrant)
 
 immigrantRoutes
   .route('/:type')

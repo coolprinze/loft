@@ -6,6 +6,13 @@ export type fundType = {
   createdAt: string
   updatedAt: string
 }
+export type spouseType = {
+  first_name: string
+  last_name: string
+  dob: string
+  country: countryType
+  qualifications: qualificationType
+}
 
 export type countryType = {
   id: number
@@ -14,6 +21,36 @@ export type countryType = {
   slug: string
   flag: string
   desc: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type stateType = {
+  id: number
+  name: string
+  slug: string
+  desc: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type degreeType = {
+  id: number
+  title: string
+  desc: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type qualificationType = {
+  id: number
+  from: string
+  to: string
+  school: string
+  city: string
+  country: countryType
+  state: stateType
+  degree: degreeType
   createdAt: string
   updatedAt: string
 }

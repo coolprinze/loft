@@ -13,9 +13,14 @@ body {
   font-weight: 500;
   color: rgb(41, 41, 41);
   height: 100%;
-  background: center top no-repeat url("./assets/img/bg1.jpg");
+  background: center top no-repeat url('./assets/img/bg1.jpg');
   background-size: cover;
+}
 
+td,
+th {
+  padding-right: 0.6rem !important;
+  padding-left: 0.5rem !important;
 }
 
 .dropdown-header {

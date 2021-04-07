@@ -23,6 +23,7 @@ const animatedComponents = makeAnimated()
 export const TextInputGroup = ({
   iconClass = '',
   label = '',
+  invalid = false,
   ...rest
 }: { iconClass?: string; label?: string } & InputProps) => {
   return (
@@ -35,7 +36,7 @@ export const TextInputGroup = ({
       ) : (
         <></>
       )}
-      <TextValidator {...rest} />
+      <TextValidator invalid={invalid} value {...rest} />
       {rest.subText && <small>{rest.subText}</small>}
     </>
   )
@@ -102,11 +103,22 @@ export const DateInputGroup = ({
           ''
         )}
         <Datetime
-          onChange={onChange}
+          onChange={(e) =>
+            //@ts-ignore
+            onChange({ target: { name: rest.name, value: e._d } })
+          }
           closeOnSelect
           timeFormat={false}
           value={value}
-          {...rest}
+          {...{
+            rest,
+            inputProps: {
+              ...rest.inputProps,
+              style: { type: 'date' },
+              required: rest.required,
+              className: `form-control ${rest.invalid ? 'is-invalid' : ''}`,
+            },
+          }}
         />
       </InputGroup>
     </FormGroup>
@@ -262,7 +274,7 @@ export const SelectGroup = ({
   defaultValue = '',
   ...rest
 }: {
-  value?: string | number
+  value?: string | number | null
   id?: string
   invalid?: boolean | false
   subText?: string
@@ -276,6 +288,7 @@ export const SelectGroup = ({
     code?: string
     title?: string
     selected?: boolean
+    disabled?: boolean
   }[]
   onSelect: (e: any) => void
   iconClass?: string
@@ -329,6 +342,7 @@ export const SelectGroup = ({
                 key={key}
                 value={item.value}
                 selected={!!item.selected}
+                disabled={!!item.disabled}
               >
                 {item.name}
               </option>

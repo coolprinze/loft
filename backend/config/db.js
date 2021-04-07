@@ -8,6 +8,7 @@ const sequelize = new Sequelize('loft_im', 'root', 'root', {
     charset: 'utf8',
     multipleStatements: true,
   },
+  logging: false,
 })
 
 // const sequelize = new Sequelize(

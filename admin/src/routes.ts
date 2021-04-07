@@ -1,4 +1,6 @@
 import Antigua from './pages/Antigua'
+import Business from './pages/Business'
+import General from './pages/General'
 import Stkitts from './pages/Stkitts'
 
 var routes = [
@@ -11,6 +13,16 @@ var routes = [
     path: '/stkitts',
     name: 'All St. Kitts',
     component: Stkitts,
+  },
+  {
+    path: '/businesses',
+    name: 'All Business Immigrants',
+    component: Business,
+  },
+  {
+    path: '/generals',
+    name: 'All General Immigrants',
+    component: General,
   },
 
   {

@@ -1,10 +1,5 @@
 const sequelize = require('../config/db.js')
 const Sequelize = require('sequelize')
-const {
-  successEmailTemplate,
-  reviewedEmailTemplate,
-  sendMail,
-} = require('../mail/index.js')
 
 const { DataTypes } = Sequelize
 
@@ -34,6 +29,14 @@ const BusinessImmigrant = sequelize.define('business_immigrant', {
   managerial_experience: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  group: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
+  eligible_party: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 })
 

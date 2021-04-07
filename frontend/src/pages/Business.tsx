@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Button, Col, Collapse, Row } from 'reactstrap'
 import validator from 'validator'
-import { addBusiness } from '../actions/General'
+import { addBusinessImmigrant } from '../actions/General'
 import { RadioInput, SelectGroup, TextInputGroup } from '../components/Form'
 import Loading from '../components/Loading'
 import MainLayout from '../layouts/MainLayout'
@@ -104,7 +104,7 @@ class Business extends Component {
   toggleStep = (val: number) => this.validateStep(val - 1)
 
   onSubmit = () =>
-    addBusiness(this.state.userData)
+    addBusinessImmigrant(this.state.userData)
       .then((res) => {
         this.setState(initialState, () => {
           toast('Your request have been logged')

@@ -82,19 +82,9 @@ const Deported_Countries = sequelize.define('deported_countries', {
 })
 
 const Visited_Countries = sequelize.define('visited_countries', {
-  countryId: {
-    type: DataTypes.INTEGER,
-    unique: 'tt_unique_constraint',
-  },
-  visitedId: {
-    type: DataTypes.INTEGER,
-    unique: 'tt_unique_constraint',
-    references: null,
-  },
-  visitedType: {
-    type: DataTypes.STRING,
-    unique: 'tt_unique_constraint',
-  },
+  countryId: DataTypes.INTEGER,
+  visitedId: DataTypes.INTEGER,
+  visitedType: DataTypes.STRING,
 })
 
 module.exports = {

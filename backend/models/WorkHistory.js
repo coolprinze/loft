@@ -15,7 +15,7 @@ const WorkHistory = sequelize.define('work_history', {
   },
 
   employer: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
 
@@ -23,15 +23,12 @@ const WorkHistory = sequelize.define('work_history', {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  immigrantType: {
-    type: DataTypes.STRING,
-    unique: 'tt_unique_constraint',
-  },
-  immigrantId: {
-    type: DataTypes.INTEGER,
-    unique: 'tt_unique_constraint',
-    references: null,
-  },
+  
+  immigrantType: DataTypes.STRING,
+
+  refType: DataTypes.STRING,
+
+  immigrantId: DataTypes.INTEGER,
 })
 
 module.exports = WorkHistory

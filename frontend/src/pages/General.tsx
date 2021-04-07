@@ -1515,8 +1515,8 @@ class General extends Component {
               <RadioInput
                 invalid={this.hasErrors('sexperienced')}
                 type='radio'
-                name='experienced'
-                id='experienced'
+                name='sexperienced'
+                id='sexperienced'
                 title='Have your spouse had paid work experience in the last 10 years?'
                 inline
                 required

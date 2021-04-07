@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { FormFeedback, Input, InputProps } from 'reactstrap'
+// import PhoneInput from 'react-phone-input-2'
+import { FormFeedback, Input } from 'reactstrap'
 import validator from 'validator'
 
 type inputProps = {
@@ -8,20 +9,54 @@ type inputProps = {
   isEmail?: boolean
   isPhoneNumber?: boolean
   isPassword?: boolean
-} & InputProps
+  invalid?: boolean
+  value: any
+}
 
 class TextValidator extends Component<inputProps> {
   state = {
-    isValid: {},
+    isValid: { valid: false, invalid: false },
     feedBack: '',
   }
+  componentDidUpdate() {
+    if (this.props.invalid && this.state.isValid.invalid === false)
+      this.changeState(false, 'this field is required')
+    else return null
+  }
   render() {
-    const { isEmail, isPhoneNumber, isPassword, value, ...rest } = this.props
+    const {
+        isRequired,
+        isEmail,
+        isPhoneNumber,
+        isPassword,
+        value,
+        ...rest
+      } = this.props,
+      {
+        isValid: { valid, invalid },
+      } = this.state
 
     return (
       <>
+        {/* {isPhoneNumber ? (
+          <PhoneInput
+            specialLabel={''}
+            country={'ng'}
+            value={value}
+            inputProps={{
+              ...rest,
+              onKeyUp: () =>
+                isRequired || rest.required ? this.errorText() : null,
+            }}
+            inputClass={`w-100 ${
+              valid ? 'is-valid' : invalid ? 'is-invalid' : ''
+            }`}
+          />
+        ) : ( */}
         <Input
-          onKeyUp={() => this.errorText()}
+          onKeyUp={() =>
+            isRequired || rest.required ? this.errorText() : null
+          }
           type={
             isPhoneNumber
               ? 'tel'
@@ -29,25 +64,26 @@ class TextValidator extends Component<inputProps> {
               ? 'email'
               : isPassword
               ? 'password'
-              : rest.type
-              ? rest.type
               : 'text'
           }
           value={value === null ? '' : value}
           {...rest}
           {...this.state.isValid}
         />
+        {/* )} */}
         {this.state.feedBack}
       </>
     )
   }
 
-  changeState = (valid: boolean | undefined, feedBack: string = '') => {
+  changeState = (valid: boolean, feedBack: string) => {
+    this.setState({ isValid: { invalid: !valid, valid } })
     this.setState({
-      isValid: { valid, invalid: valid === undefined ? undefined : !valid },
-    })
-    this.setState({
-      feedBack: valid ? '' : <FormFeedback>{feedBack}</FormFeedback>,
+      feedBack: valid ? (
+        ''
+      ) : (
+        <FormFeedback style={{ display: 'block' }}>{feedBack}</FormFeedback>
+      ),
     })
   }
 
@@ -58,33 +94,30 @@ class TextValidator extends Component<inputProps> {
       isEmail,
       isPhoneNumber,
       isPassword,
-      value = '',
+      value,
     } = this.props
 
     const otherConditions = () => {
       if (isEmail) {
-        this.changeState(
-          validator.isEmail(value ? value.toString() : ''),
-          'Invalid email address'
-        )
+        this.changeState(validator.isEmail(value), 'Invalid email address')
       } else if (isPhoneNumber) {
         this.changeState(
-          validator.isMobilePhone(value ? value.toString() : '', 'any'),
+          validator.isMobilePhone(value.replaceAll(' ', ''), 'any'),
           'Invalid phone number'
         )
       } else if (isPassword) {
         this.changeState(
-          validator.isLength(value ? value.toString() : '', { min: 6 }),
+          validator.isLength(value, { min: 6 }),
           'Password must be at least 6 characters'
         )
       } else {
-        this.changeState(undefined)
+        this.changeState(true, '')
       }
     }
 
     if (isRequired || required) {
-      if (validator.isEmpty(value ? value.toString() : '')) {
-        this.changeState(false, 'this feild is required')
+      if (validator.isEmpty(value)) {
+        this.changeState(false, 'this field is required')
       } else {
         otherConditions()
       }

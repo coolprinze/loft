@@ -1,15 +1,19 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { Button, Col, Collapse, Row } from 'reactstrap'
+import { Button, Card, CardBody, Col, Collapse, Row } from 'reactstrap'
 import validator from 'validator'
-import { addBusiness } from '../actions/General'
-import { RadioInput, SelectGroup, TextInputGroup } from '../components/Form'
+import { addBusinessImmigrant } from '../actions/General'
+import {
+  DateInputGroup,
+  RadioInput,
+  SelectGroup,
+  TextInputGroup,
+} from '../components/Form'
 import Loading from '../components/Loading'
 import MainLayout from '../layouts/MainLayout'
-import Countries from '../static/countries'
 import Currencies from '../static/currencies'
-import { errorKey } from '../types'
+import { qualification } from '../types/business'
 import { maritalOptions } from './General'
 
 const experiencedOptions = [
@@ -25,51 +29,57 @@ const experiencedOptions = [
   },
 ]
 
+const educatedOptions = [
+  {
+    label: 'Yes',
+    id: 'educated',
+    value: 'true',
+  },
+  {
+    label: 'No',
+    id: 'noteducated',
+    value: 'false',
+  },
+]
+
+const spouseEducatedOptions = [
+  {
+    label: 'Yes',
+    id: 'seducated',
+    value: 'true',
+  },
+  {
+    label: 'No',
+    id: 'snoteducated',
+    value: 'false',
+  },
+]
+
 const initialState = {
   isOpen: 1,
+    educated: null,
+    spouseEducated: null,
   userData: {
-    first_name: 'Ebuka',
-    last_name: 'Nwosu',
-    email: 'ebuksnwosu45@gmail.com',
-    phone: '+2348107539186',
-    dob: '11-06-1993',
-    managerial_experience: true,
-    maritalStatusId: 2,
-    networth: 2,
-    invest_funds: 2,
-    residenceId: 162,
-    citizenshipId: '162',
-    educational_histories: [
-      {
-        from: '12-3-2000',
-        to: '12-3-2020',
-        school: 'Yaba College of Technology',
-        city: 'Yaba',
-        countryId: '162',
-        stateId: '1',
-        degreeId: '2',
-      },
-    ],
+    first_name: '',
+    last_name: '',
+    email: '',
+    citizenshipId: null,
+    residenceId: null,
+    phone: '',
+    married: '',
+    dob: '',
+
+    networth: null,
+    invest_funds: null,
+    managerial_experience: undefined,
+    qualifications: [],
     spouse: {
-      first_name: 'Chioma',
-      last_name: 'Osita',
-      dob: '11-06-1994',
-      country_of_birth: 162,
-      educational_histories: [
-        {
-          from: '12-3-2000',
-          to: '12-3-2020',
-          school: 'Unilag',
-          city: 'Yaba',
-          countryId: '162',
-          stateId: '1',
-          degreeId: '1',
-        },
-      ],
+      country_of_birth: null,
+      dob: undefined,
+      qualifications: [],
     },
   },
 
-  countries: Countries,
   currencies: Currencies.map((currency) => ({
     name: currency.name,
     value: currency.name,
@@ -79,69 +89,147 @@ const initialState = {
   errors: new Array(),
 }
 
-class Business2 extends Component {
+class Business2 extends Component<{
+  countries: { name: string; value: number }[]
+  degrees: { name: string; value: number }[]
+  worthRanges: { name: string; value: number }[]
+  investRanges: { name: string; value: number }[]
+}> {
   state = initialState
 
+  enableKeyboard = () => (document.onkeypress = () => true)
+  disableKeyboard = () => (document.onkeypress = () => false)
   validateStep = (val: number) => {
     let {
+        educated,
+        spouseEducated,
       userData: {
         first_name,
         last_name,
         email,
         phone: phn,
         dob,
-        managerial_experience,
-        maritalStatusId,
-        networth,
-        invest_funds,
         residenceId,
         citizenshipId,
+        married,
+
+        networth,
+        invest_funds,
+
+        managerial_experience,
+        qualifications,
+
+        spouse
       },
     } = this.state
+
     const errors: any = []
+
+
+    const validateQualification = (qualifications: qualification[], type:string='') => {
+      if (type === 's'? spouseEducated :educated)
+        qualifications.map((qualification, index) => {
+        let { from, to, school, city, degreeId, countryId } = qualification
+        errors.push([])
+
+        !from && errors[index].push(`${type}from`)
+        !to && errors[index].push(`${type}to`)
+        !school && errors[index].push(`${type}school`)
+        !city && errors[index].push(`${type}city`)
+        !degreeId && errors[index].push(`${type}degree`)
+        !countryId && errors[index].push(`${type}country`)
+        return null
+      })
+      else errors.push(`${type}educated`)
+
+      return !errors.find((error: any) => error.length) || false
+    }
+    const validateStep1 = () => {
+        const phone = phn.replace(/\D/g, '').slice(-10)
+
+        !first_name && errors.push('first_name')
+        !last_name && errors.push('last_name')
+        !citizenshipId && errors.push('citizenshipId')
+        !residenceId && errors.push('residenceId')
+        !dob && errors.push('dob')
+
+        !married && errors.push('married')
+        !validator.isEmail(email) && errors.push('email')
+        !validator.isMobilePhone(phone) && errors.push('phone')
+
+        return !errors.length || false
+      },
+      validateStep2 = () => {
+        !networth && errors.push('networth')
+        !invest_funds && errors.push('invest_funds')
+        !validator.isNumeric(`${networth}`) && errors.push('networth')
+        !validator.isNumeric(`${invest_funds}`) && errors.push('invest_funds')
+
+        return !errors.length || false
+      },
+      validateStep4 = () => {
+        if (married === 'true') {
+          let {
+            dob,
+            qualifications,
+            country_of_birth
+          } = spouse
+  
+          validateQualification(qualifications ,'s')
+          !country_of_birth && errors.push('country_of_birth')
+          !validator.isNumeric(`${country_of_birth}`) && errors.push('country_of_birth')
+          !dob && errors.push('sdob')
+  
+        } 
+        return !errors.find((error: any) => error.length) || false
+      },
+      validateStep3 = () => {
+        !managerial_experience && errors.push('managerial_experience')
+        
+        return validateQualification(qualifications)
+      }
+
     if (val === 1) {
-      const phone = phn.replace(/\D/g, '').slice(-10)
-
-      !first_name && errors.push('first_name')
-      !last_name && errors.push('last_name')
-      !citizenshipId && errors.push('citizenshipId')
-      !residenceId && errors.push('residenceId')
-      !dob && errors.push('dob')
-      !maritalStatusId && errors.push('maritalStatusId')
-      !validator.isEmail(email) && errors.push('email')
-      !validator.isMobilePhone(phone) && errors.push('phone')
-
-      if (!errors.length) {
-        this.setState({ isOpen: 2 })
-      }
+      validateStep1() && this.setState({ isOpen: 2 })
     } else if (val === 2) {
-      !networth && errors.push('networth')
-      !invest_funds && errors.push('invest_funds')
-      !validator.isNumeric(`${networth}`) && errors.push('networth')
-      !validator.isNumeric(`${invest_funds}`) && errors.push('invest_funds')
-
-      if (!errors.length) {
-        this.setState({ isOpen: 3 })
-      }
+      validateStep1()
+        ? validateStep2() && this.setState({ isOpen: 3 })
+        : this.setState({ isOpen: 1 })
     } else if (val === 3) {
-      !managerial_experience && errors.push('managerial_experience')
-
-      if (!errors.length) {
-        this.setState({ loading: true }, this.onSubmit)
-      }
+      validateStep1()
+        ? validateStep2()
+          ? validateStep3()
+            ? married === 'true'
+              ? this.setState({ isOpen: 4 })
+              : this.setState({ loading: true }, this.onSubmit)
+            : console.log(errors) 
+          : this.setState({ isOpen: 2 })
+        : this.setState({ isOpen: 1 })
+    } else if (val === 4) {
+      validateStep1()
+        ? validateStep2()
+          ? validateStep3()
+            ? validateStep4()
+              ? this.setState({ loading: true }, this.onSubmit)
+              : console.log(errors)
+            : this.setState({ isOpen: 3 })
+          : this.setState({ isOpen: 2 })
+        : this.setState({ isOpen: 1 })
     } else {
       this.setState({ isOpen: 1 })
     }
     this.setState({ errors })
   }
 
-  hasErrors = (key: errorKey, errors = this.state.errors) =>
-    errors.includes(key)
+  hasErrors = (key: any, errors = this.state.errors) => {
+    return errors.includes(key)
+  }
 
   toggleStep = (val: number) => this.validateStep(val - 1)
 
-  onSubmit = () =>
-    addBusiness(this.state.userData)
+  onSubmit = () => {
+
+    addBusinessImmigrant(this.state.userData)
       .then((res) => {
         this.setState(initialState, () => {
           toast('Your request have been logged')
@@ -155,21 +243,274 @@ class Business2 extends Component {
           )
         )
       )
+  }
 
-  onChange = (e?: any) => {
+  onChangeEducated = (e?: any, type: string = '') => {
+    if (e.target.value === 'true') {
+      type === 's'?  this.addQualification('s') :this.addQualification()
+    } else {
+      const {userData, educated, spouseEducated} = this.state
+      this.setState({
+        userData: type === 's'
+        ? {
+          ...userData,
+          spouse: { ...userData.spouse, qualifications: [] },
+        }
+        :{
+          ...userData,
+          qualifications: [],
+        },
+        educated: type === ''? 'false' : educated,
+        spouseEducated: type === 's'? 'false' : spouseEducated,
+      })
+    }
+  }
+
+  onChange = (e?: any, type: string = '') => {
+    const userData = this.state.userData
+    if (type === 's')
+      this.setState({
+        userData: {
+          ...userData,
+          spouse: {
+            ...userData.spouse,
+            [e.target.name]: e.target.value,
+          },
+        },
+      })
+    else
+      this.setState({
+        userData: {
+          ...userData,
+          [e.target.name]: ['age', 'children'].includes(e.target.name)
+            ? parseInt(e.target.value)
+            : e.target.value,
+        },
+      })
+  }
+
+  /*------------------------------------*/
+  /*------ Qualificaton Functions ------*/
+  /*------------------------------------*/
+  addQualification = (type: string = '') => {
+    const {userData, spouseEducated, educated} = this.state,
+    {qualifications} = type === 's'? userData.spouse :userData
+    const errors: any = []
+
+    qualifications.map((qualification, index) => {
+      let {
+        degreeId,
+        from,
+        to,
+        school,
+        city,
+        // stateId,
+        countryId,
+      } = qualification
+      errors.push([])
+
+      !degreeId && errors[index].push(`${type}degreeId`)
+      !from && errors[index].push(`${type}from`)
+      !to && errors[index].push(`${type}to`)
+      !school && errors[index].push(`${type}school`)
+      !city && errors[index].push(`${type}city`)
+      // !stateId && errors[index].push(`${type}state`)
+      !countryId && errors[index].push(` ${type}country`)
+      return null
+    })
+
+    if (!errors.find((error: any) => error.length)) {
+      const newQual = {
+        degreeId: null,
+        from: '',
+        to: '',
+        school: '',
+        city: '',
+        stateId: null,
+        countryId: null,
+      }
+      this.setState({
+        userData: type === 's'
+        ?{
+          ...userData,
+          spouse: {
+            ...userData.spouse,
+            qualifications: [
+              ...userData.spouse.qualifications,
+              newQual,
+            ],
+          },
+        }
+        :{
+          ...userData,
+          qualifications: [
+            ...userData.qualifications,
+            newQual,
+          ],
+        },
+        errors: [],
+        educated: type === ''? true : educated,
+        spouseEducated: type === 's'? true : spouseEducated,
+      })
+    } else {
+      this.setState({ loading: false, errors })
+    }
+  }
+
+  removeQualification = (index: number, type: string = '') => {
+    const userData = this.state.userData,
+    {qualifications} = type === 's'? userData.spouse :userData
+
+    qualifications.splice(index, 1)
+
     this.setState({
-      userData: {
-        ...this.state.userData,
-        [e.target.name]: ['networth'].includes(e.target.name)
-          ? parseInt(e.target.value)
-          : e.target.value,
+      userData: type === 's'
+      ? {
+        ...userData,
+        spouse: { ...userData.spouse, qualifications },
+      }
+      :{
+        ...userData,
+        qualifications,
       },
     })
   }
 
+  onChangeQualification = (index: number, e?: any, type: string = '') => {
+    const userData = this.state.userData,
+    {qualifications}: {qualifications: qualification[]} = type === 's'? userData.spouse :userData
+    qualifications[index] = {
+      ...qualifications[index],
+      [e.target.name]: e.target.value,
+    }
+
+    this.setState({
+      userData: type === 's'
+      ?{
+        ...userData,
+        spouse: { ...userData.spouse, qualifications },
+      }
+      :{ ...this.state.userData, qualifications },
+    })
+  }
+
+  qualification = (q: qualification, index: number, title: string, type: string = '') => {
+    const { countries, degrees } = this.props
+
+    const { errors } = this.state
+
+    return (
+      <Col sm={6} className='py-3'>
+        <div className='p-4 bg-light justify-content-bottom h-100'>
+          <h5>
+            <strong>{title}</strong>
+            <Button
+              size='sm'
+              outline
+              className='btn float-right btn-outline-secondary'
+              onClick={() => index && this.removeQualification(index, type)}
+            >
+              x
+            </Button>
+          </h5>
+          <Row className='mx-0'>
+            <Col xs={6} className='py-1 p-0 pr-1'>
+              <DateInputGroup
+                inputProps={{
+                  style: {
+                    type: 'date',
+                  },
+                  required: true,
+                }}
+                invalid={this.hasErrors(`${type}from`, errors[index])}
+                label='From'
+                onFocus={this.disableKeyboard}
+                onBlur={this.enableKeyboard}
+                value={q.from}
+                autoComplete='off'
+                id={`${type}from`}
+                onChange={(e) =>
+                  this.onChangeQualification(index, {
+                    ...e,
+                    target: { ...e.target, name: 'from' },
+                  }, type)
+                }
+                required
+              />
+            </Col>
+            <Col xs={6} className='py-1 px-0 pl-1'>
+              <DateInputGroup
+                inputProps={{
+                  style: { type: 'date' },
+                  required: true,
+                }}
+                invalid= {this.hasErrors(`${type}to`, errors[index])}
+                label='To'
+                onFocus={this.disableKeyboard}
+                onBlur={this.enableKeyboard}
+                value={q.to}
+                autoComplete='off'
+                name='to'
+                id={`${type}to`}
+                onChange={(e) =>
+                  this.onChangeQualification(index, {
+                    ...e,
+                    target: { ...e.target, name: 'to' },
+                  }, type)
+                }
+                required
+              />
+            </Col>
+          </Row>
+
+          <TextInputGroup
+            invalid={this.hasErrors(`${type}school`, errors[index])}
+            label='School'
+            name='school'
+            value={q.school}
+            required
+            onChange={(e: any) => this.onChangeQualification(index, e, type)}
+          />
+
+          <TextInputGroup
+            invalid={this.hasErrors(`${type}city`, errors[index])}
+            label='City'
+            name='city'
+            value={q.city}
+            required
+            onChange={(e: any) => this.onChangeQualification(index, e, type)}
+          />
+          <SelectGroup
+            invalid={this.hasErrors(`${type}degreeId`, errors[index])}
+            id={`${type}degreeId`}
+            name='degreeId'
+            value={q.degreeId}
+            options={degrees}
+            placeholder='PLEASE SELECT'
+            onSelect={(e: any) => this.onChangeQualification(index, e, type)}
+            required
+            label='What Degree'
+          />
+          <SelectGroup
+            invalid={this.hasErrors(`${type}country`, errors[index])}
+            id={`${type}country`}
+            name='countryId'
+            value={q.countryId}
+            options={countries}
+            placeholder='SELECT A COUNTRY'
+            onSelect={(e: any) => this.onChangeQualification(index, e, type)}
+            required
+            label='Location'
+          />
+        </div>
+      </Col>
+    )
+  }
+
+
+
   section1 = (isOpen: number) => {
     const {
-      countries,
       userData: {
         first_name,
         last_name,
@@ -229,7 +570,7 @@ class Business2 extends Component {
                 id='citizenshipId'
                 name='citizenshipId'
                 value={citizenshipId}
-                options={countries}
+                options={this.props.countries}
                 placeholder='SELECT A COUNTRY'
                 onSelect={this.onChange}
                 required
@@ -241,8 +582,8 @@ class Business2 extends Component {
                 invalid={this.hasErrors('residenceId')}
                 id='residenceId'
                 name='residenceId'
-                value={`${residenceId}`}
-                options={countries}
+                value={residenceId}
+                options={this.props.countries}
                 placeholder='SELECT A COUNTRY'
                 onSelect={this.onChange}
                 required
@@ -260,17 +601,30 @@ class Business2 extends Component {
                 onChange={this.onChange}
               />
             </Col>
-            <Col sm={12} className='py-1'>
+            <Col sm={6} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('married')}
                 type='radio'
-                name='maritalStatusId'
-                id='maritalStatusId'
+                name='married'
+                id='married'
                 title='Martal Status'
                 inline
                 required
                 options={maritalOptions}
                 onSelect={this.onChange}
+              />
+            </Col>
+            <Col sm={6} className='py-1'>
+              <DateInputGroup
+                invalid={this.hasErrors('dob')}
+                label='Date of Birth'
+                onFocus={this.disableKeyboard}
+                onBlur={this.enableKeyboard}
+                autoComplete='off'
+                name='dob'
+                id='dob'
+                onChange={this.onChange}
+                required
               />
             </Col>
             <Col className='text-right'>
@@ -288,12 +642,9 @@ class Business2 extends Component {
       </div>
     )
   }
-
   section2 = (isOpen: number) => {
-    const {
-      currencies,
-      userData: { networth },
-    } = this.state
+    const { networth, invest_funds } = this.state.userData,
+      { investRanges, worthRanges } = this.props
 
     return (
       <div className='section mb-2 p-3'>
@@ -302,31 +653,34 @@ class Business2 extends Component {
           onClick={() => this.toggleStep(2)}
           to='#'
         >
-          <h2>Your personal net worth</h2>
+          <h2>Your Financials</h2>
         </Link>
         <Collapse isOpen={isOpen === 2}>
-          <p>
-            Your Personal Net Worth is the current value of all the assets (e.g.
-            properties, investments, stocks, bonds, bank accounts) that you (and
-            your spouse/common-law partner, if applicable) personally own, MINUS
-            the current value of all your combined personal liabilities (e.g.
-            mortgages, loans, credit card balances).
-          </p>
-          <p>
-            Please be sure to include your share of the value of any businesses
-            that you own.
-          </p>
           <Row>
-            <Col sm={12} className='py-1'></Col>
             <Col sm={12} className='py-1'>
-              <TextInputGroup
+              <SelectGroup
                 invalid={this.hasErrors('networth')}
-                label='Net Worth'
+                id='networth'
                 name='networth'
                 value={networth}
-                type='number'
+                options={worthRanges}
+                placeholder='PLEASE SELECT'
+                onSelect={this.onChange}
                 required
-                onChange={this.onChange}
+                label='Net Worth (the sum total of all assets such as properties, investments, savings, etc.)'
+              />
+            </Col>
+            <Col sm={12} className='py-1'>
+              <SelectGroup
+                invalid={this.hasErrors('invest_funds')}
+                id='invest_funds'
+                name='invest_funds'
+                value={invest_funds}
+                options={investRanges}
+                placeholder='PLEASE SELECT'
+                onSelect={this.onChange}
+                required
+                label='Funds Available to Invest in Canada'
               />
             </Col>
 
@@ -347,6 +701,9 @@ class Business2 extends Component {
   }
 
   section3 = (isOpen: number) => {
+    const {
+      userData: { qualifications, married },
+    } = this.state
     return (
       <div className='section mb-2 p-3'>
         <Link
@@ -365,10 +722,10 @@ class Business2 extends Component {
           <Row className='row-eq-height'>
             <Col sm={12} className='py-1'>
               <RadioInput
-                invalid={this.hasErrors('experienced')}
+                invalid={this.hasErrors('managerial_experience')}
                 type='radio'
-                name='experienced'
-                id='experienced'
+                name='managerial_experience'
+                id='managerial_experience'
                 title='Do you have at least 2 years of management experience'
                 required
                 options={experiencedOptions}
@@ -376,11 +733,169 @@ class Business2 extends Component {
               />
             </Col>
           </Row>
+
+          <Row className='row-eq-height'>
+            <Col sm={12} className='py-1'>
+              <RadioInput
+                invalid={this.hasErrors('educated')}
+                type='radio'
+                name='educated'
+                id='educated'
+                title='Have you received any post-secondary education or training?'
+                inline
+                required
+                options={educatedOptions}
+                onSelect={this.onChangeEducated}
+                autoFocus={isOpen === 2}
+              />
+            </Col>
+          </Row>
+          {(qualifications.length && (
+            <Card>
+              <CardBody className='bg-muted'>
+                <Row className='row-eq-height'>
+                  {this.qualification(
+                    qualifications[0],
+                    0,
+                    'Current (or most recent) Program of Study:'
+                  )}
+                  {qualifications.map(
+                    (qualif, index) =>
+                      index !== 0 &&
+                      this.qualification(
+                        qualif,
+                        index,
+                        'Previous Study Program:'
+                      )
+                  )}
+                </Row>
+                <Button color='secondary' onClick={() => this.addQualification()}>
+                  Add Another Education or Training Program
+                </Button>
+              </CardBody>
+            </Card>
+          )) ||
+            ''}
+          <Row className='mt-2'>
+            <Col className={married === 'true' ?'text-right':''}>
+              <Button
+                color='danger'
+                onClick={() => this.validateStep(3)}
+                className='px-5'
+                size='lg'
+              >
+                {married === 'true' ? 'Next Step' : 'SUBMIT'}
+              </Button>
+            </Col>
+          </Row>
+        </Collapse>
+      </div>
+    )
+  }
+
+  section4 = (isOpen: number) => {
+
+    const {
+      userData: {
+        spouse: {
+          qualifications,
+          dob,
+          country_of_birth
+        },
+      },
+    } = this.state
+
+    return (
+      <div className='section mb-2 p-3'>
+        <Link
+          className={`${(isOpen === 4 && 'active') || ''} collapse-btn`}
+          onClick={() => this.toggleStep(4)}
+          to='#'
+        >
+          <h2>Spouse</h2>
+        </Link>
+        <Collapse isOpen={isOpen === 4}>
+          <Row className='row-eq-height'>
+            <Col sm={6} className='py-1'>
+              <SelectGroup
+                invalid={this.hasErrors('country_of_birth')}
+                id='country_of_birth'
+                name='country_of_birth'
+                value={country_of_birth}
+                options={this.props.countries}
+                placeholder='SELECT A COUNTRY'
+                onSelect={(e) => this.onChange(e, 's')}
+                required
+                label='Country of Birth'
+              />
+            </Col>
+            <Col sm={6} className='py-1'>
+              <DateInputGroup
+                invalid={this.hasErrors('sdob')}
+                label='Date of Birth'
+                onFocus={this.disableKeyboard}
+                onBlur={this.enableKeyboard}
+                autoComplete='off'
+                name='dob'
+                value={dob}
+                id='sdob'
+                onChange={(e) =>
+                  this.onChange({
+                    ...e,
+                    target: { ...e.target, name: 'dob' },
+                  }, 's')
+                }
+                required
+              />
+            </Col>
+            <Col sm={12} className='py-1'>
+              <RadioInput
+                invalid={this.hasErrors('seducated')}
+                type='radio'
+                name='spouseEducated'
+                id='spouseEducated'
+                title='Have your spouse received any post-secondary education or training?'
+                inline
+                required
+                options={spouseEducatedOptions}
+                onSelect={(e:any) => this.onChangeEducated(e, 's')}
+              />
+            </Col>
+          </Row>
+          {(qualifications.length && (
+            <Card>
+              <CardBody className='bg-muted'>
+                <Row className='row-eq-height'>
+                  {this.qualification(
+                    qualifications[0],
+                    0,
+                    'Spouse Current (or most recent) Program of Study:',
+                    's'
+                  )}
+                  {qualifications.map(
+                    (qualif, index) =>
+                      index !== 0 &&
+                      this.qualification(
+                        qualif,
+                        index,
+                        'Previous Study Program:',
+                        's'
+                      )
+                  )}
+                </Row>
+                <Button color='secondary' onClick={()=>this.addQualification('s')}>
+                  Add Another Education or Training Program
+                </Button>
+              </CardBody>
+            </Card>
+          )) ||
+            ''}
+
           <Row className='mt-2'>
             <Col>
               <Button
                 color='danger'
-                onClick={() => this.validateStep(3)}
+                onClick={() => this.validateStep(4)}
                 className='px-5'
                 size='lg'
               >
@@ -394,7 +909,7 @@ class Business2 extends Component {
   }
 
   render() {
-    const { isOpen, loading } = this.state
+    const { isOpen, loading, userData:{married} } = this.state
 
     return (
       <MainLayout title='Business' showMenu>
@@ -404,6 +919,7 @@ class Business2 extends Component {
             {this.section1(isOpen)}
             {this.section2(isOpen)}
             {this.section3(isOpen)}
+            {married === 'true' && this.section4(isOpen)}
           </div>
         </>
       </MainLayout>

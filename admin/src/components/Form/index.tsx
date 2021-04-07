@@ -15,7 +15,7 @@ import {
 import { ColProps } from 'reactstrap/lib/Col'
 import { CustomInputProps } from 'reactstrap/lib/CustomInput'
 import validator from 'validator'
-import './style.scss'
+import './style.css'
 import TextValidator from './TextValidator'
 
 const animatedComponents = makeAnimated()
@@ -23,6 +23,7 @@ const animatedComponents = makeAnimated()
 export const TextInputGroup = ({
   iconClass = '',
   label = '',
+  invalid = false,
   ...rest
 }: { iconClass?: string; label?: string } & InputProps) => {
   return (
@@ -35,7 +36,7 @@ export const TextInputGroup = ({
       ) : (
         <></>
       )}
-      <TextValidator {...rest} />
+      <TextValidator invalid={invalid} value {...rest} />
       {rest.subText && <small>{rest.subText}</small>}
     </>
   )
@@ -102,11 +103,22 @@ export const DateInputGroup = ({
           ''
         )}
         <Datetime
-          onChange={onChange}
+          onChange={(e) =>
+            //@ts-ignore
+            onChange({ target: { name: rest.name, value: e._d } })
+          }
           closeOnSelect
           timeFormat={false}
           value={value}
-          {...rest}
+          {...{
+            rest,
+            inputProps: {
+              ...rest.inputProps,
+              style: { type: 'date' },
+              required: rest.required,
+              className: `form-control ${rest.invalid ? 'is-invalid' : ''}`,
+            },
+          }}
         />
       </InputGroup>
     </FormGroup>
@@ -266,6 +278,7 @@ export const SelectGroup = ({
   id?: string
   invalid?: boolean | false
   subText?: string
+  bsSize?: 'sm' | 'lg'
   defaultValue?: string
   placeholder: string
   name: string

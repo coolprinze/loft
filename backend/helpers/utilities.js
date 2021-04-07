@@ -1,6 +1,6 @@
-import * as jwt from 'jsonwebtoken'
+const jwt = require('jsonwebtoken')
 
-export const titleCase = (str: string) => {
+const titleCase = (str) => {
   var splitStr = str.toLowerCase().split(' ')
   for (var i = 0; i < splitStr.length; i++) {
     // You do not need to check if i is larger than splitStr length, as your for does that for you
@@ -11,7 +11,7 @@ export const titleCase = (str: string) => {
   return splitStr.join(' ')
 }
 
-export const generatePassword = (length: number) => {
+const generatePassword = (length) => {
   let result = ''
   let characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -22,15 +22,29 @@ export const generatePassword = (length: number) => {
   return result
 }
 
-export const cleanFilename = (text: string) =>
+const cleanFilename = (text) =>
   `${text
     .split('.')[0]
     .toLowerCase()
     .replace(/[^\w ]+/g, '')
     .replace(/ +/g, '-')}.${text.split('.').pop()}`
 
-export const generateToken = (data: any) => {
+const generateToken = (data) => {
   return jwt.sign(data, process.env.JWT_SECRET || 'enjk3enrio24;hruy4j45pot;', {
     expiresIn: '30d',
   })
+}
+
+const _calculateAge = (birthday) => {
+  var ageDifMs = Date.now() - birthday.getTime()
+  var ageDate = new Date(ageDifMs) // miliseconds from epoch
+  return Math.abs(ageDate.getUTCFullYear() - 1970)
+}
+
+module.exports = {
+  titleCase,
+  generatePassword,
+  cleanFilename,
+  generateToken,
+  _calculateAge,
 }

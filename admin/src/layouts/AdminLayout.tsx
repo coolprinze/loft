@@ -9,6 +9,10 @@ import './style.scss'
 import routes from '../routes'
 import { logOut } from '../actions'
 import userType, { authState } from '../interface/user'
+import { getCountries, getFundRanges } from '../actions/Utilites'
+import { toast } from 'react-toastify'
+import { errHandler } from '../actions/errorHandler'
+import { fundsAction } from '../helpers'
 
 class AdminLayout extends Component<{
   user: userType | null
@@ -17,6 +21,30 @@ class AdminLayout extends Component<{
   state = {
     showMenu: false,
     loading: false,
+    countries: [],
+    investRanges: [],
+  }
+
+  componentDidMount() {
+    this.initFunc()
+  }
+
+  initFunc = async () => {
+    this.setState({ loading: true })
+    try {
+      const res1 = await getCountries()
+      // const res2 = await getFundRanges('worth')
+      const res3 = await getFundRanges('invest')
+
+      this.setState({
+        loading: false,
+        countries: res1.data,
+        investRanges: res3.data,
+      })
+    } catch (err) {
+      this.setState({ loading: false })
+      errHandler(err?.response?.data, toast)
+    }
   }
 
   toggleMenu = () => this.setState({ showMenu: !this.state.showMenu })
@@ -25,12 +53,28 @@ class AdminLayout extends Component<{
     routes: {
       path: string
       name: string
-      component: React.ComponentClass
+      component: React.ComponentClass<{ countries: any; investRanges: any }>
     }[]
-  ) =>
-    routes.map((prop, key) => (
-      <Route path={prop.path} component={prop.component} key={key} />
+  ) => {
+    const { investRanges, countries } = this.state
+    return routes.map((prop, key) => (
+      <Route
+        path={prop.path}
+        component={() => (
+          <prop.component
+            countries={countries.map(
+              (country: { name: string; id: number }) => ({
+                name: country.name,
+                value: country.id,
+              })
+            )}
+            investRanges={fundsAction(investRanges)}
+          />
+        )}
+        key={key}
+      />
     ))
+  }
 
   render() {
     const { user } = this.props,
@@ -108,6 +152,26 @@ class AdminLayout extends Component<{
                       to='/stkitts'
                     >
                       St. Kitts Immigrants
+                    </NavLink>
+                  </p>
+                  <hr className='mt-0 mb-3' />
+                  <p className='mb-1'>
+                    <NavLink
+                      activeClassName='active'
+                      onClick={this.toggleMenu}
+                      to='/businesses'
+                    >
+                      Business Immigrants
+                    </NavLink>
+                  </p>
+                  <hr className='mt-0 mb-3' />
+                  <p className='mb-1'>
+                    <NavLink
+                      activeClassName='active'
+                      onClick={this.toggleMenu}
+                      to='/generals'
+                    >
+                      General Immigrants
                     </NavLink>
                   </p>
                   <hr className='mt-0 mb-3' />

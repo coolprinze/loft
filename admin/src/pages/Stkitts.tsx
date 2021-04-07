@@ -1,18 +1,17 @@
+import { AxiosPromise } from 'axios'
+import moment from 'moment'
 import React, { Component } from 'react'
 import { CSVLink } from 'react-csv'
-import { connect } from 'react-redux'
 import NumberFormat from 'react-number-format'
+import { connect } from 'react-redux'
 import { Card, Col, Row, Table } from 'reactstrap'
 import {
+  collectionType,
   getImmigrants,
   searchDb,
-  collectionType,
 } from '../actions/ImmigrantActions'
 import { TextInputGroup } from '../components/Form'
-// import { businessType } from "../reducers/interface";
-import { AxiosPromise } from 'axios'
 import Loading from '../components/Loading'
-import moment from 'moment'
 import { antiguaType } from '../interface/antiguaType'
 
 const data = {
@@ -45,15 +44,13 @@ class Stkitts extends Component<{
 }> {
   state = { search: '', loading: false }
 
-  componentDidMount() {
-    this.setState({ loading: true }, () =>
-      this.props
-        .getImmigrants('stkitts')
-        .then((res) => this.setState({ loading: false }))
-        .catch((err) => this.setState({ loading: false }))
-    )
+  async componentDidMount() {
+    this.setState({ loading: true })
+    await this.props
+      .getImmigrants('stkitts')
+      .then((res) => this.setState({ loading: false }))
+      .catch((err) => this.setState({ loading: false }))
   }
-
   onChange = (e?: any) => {
     this.setState({ [e.target.name]: e.target.value })
     this.onSearch(e.target.value)

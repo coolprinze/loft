@@ -67,8 +67,12 @@ var corsOptions = {
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:3006',
     'https://loftimmigration.com',
     'http://127.0.0.1:3000',
+    'http://192.168.88.23',
+    'http://192.168.88.20:3000',
+    'http://192.168.88.20:3006',
   ],
   optionsSuccessStatus: 200,
 }

@@ -6,31 +6,48 @@ const {
   Deported_Countries,
 } = require('./Country')
 const Company = require('./Company')
-const EducationalHistory = require('./EducationalHistory')
+const Qualification = require('./Qualification')
 const State = require('./State')
 const Occupation = require('./Occupation')
 const MaritalStatus = require('./MaritalStatus')
-const WorkHistory = require('./WorkHistory')
+const Experience = require('./WorkHistory')
 const Spouse = require('./Spouse')
 const BusinessProfile = require('./BusinessProfile')
-const { Language, LanguageProficiencies } = require('./Language')
+const { Language, LanguageProficiency } = require('./Language')
 const AntiguaImmigrant = require('./AntiguaImmigrant')
 const StkittsImmigrant = require('./StkittsImmigrant')
 const Fund = require('./Fund')
 const MailQueue = require('./MailQueue')
 const Degree = require('./Degree')
+const {
+  successEmailTemplate,
+  reviewedEmailTemplate,
+  sendMail,
+} = require('../mail/index.js')
+const { _calculateAge } = require('../helpers/utilities')
+const GeneralImmigrant = require('./General')
 
 /* -----------------------------------------------------------------*/
 /* --------------------- Degree Associations -----------------------*/
 /* -----------------------------------------------------------------*/
-Degree.hasMany(EducationalHistory)
+Degree.hasMany(Qualification)
+
+/* -----------------------------------------------------------------*/
+/* -------------------- Language Associations ----------------------*/
+/* -----------------------------------------------------------------*/
+Language.hasMany(LanguageProficiency)
+
+/* -----------------------------------------------------------------*/
+/* -------------- LanguageProficiency Associations -----------------*/
+/* -----------------------------------------------------------------*/
+LanguageProficiency.belongsTo(Language)
 
 /* -----------------------------------------------------------------*/
 /* --------------- Educational History Associations ----------------*/
 /* -----------------------------------------------------------------*/
-EducationalHistory.belongsTo(Country)
-EducationalHistory.belongsTo(State)
-EducationalHistory.belongsTo(Degree)
+Qualification.belongsTo(Country)
+Qualification.belongsTo(State)
+Qualification.belongsTo(Degree)
 
 /* -----------------------------------------------------------------*/
 /* --------------------- Country Associations ----------------------*/
@@ -52,11 +69,29 @@ Country.belongsToMany(StkittsImmigrant, {
   foreignKey: 'countryId',
   constraints: false,
 })
+Country.belongsToMany(AntiguaImmigrant, {
+  through: {
+    model: Deported_Countries,
+    unique: false,
+  },
+  foreignKey: 'countryId',
+  constraints: false,
+})
+
+Country.belongsToMany(AntiguaImmigrant, {
+  through: {
+    model: Rejected_Countries,
+    unique: false,
+  },
+  foreignKey: 'countryId',
+  constraints: false,
+})
 
 /* -----------------------------------------------------------------*/
 /* ------------------ Marital Status Associations ------------------*/
 /* -----------------------------------------------------------------*/
 MaritalStatus.hasMany(BusinessImmigrant)
+MaritalStatus.hasMany(GeneralImmigrant)
 
 /* -----------------------------------------------------------------*/
 /* ---------------------- Spouse Associations ----------------------*/
@@ -65,29 +100,64 @@ Spouse.belongsTo(Country, {
   foreignKey: 'country_of_birth',
   as: 'birthCountry',
 })
-Spouse.belongsTo(BusinessImmigrant, {
-  foreignKey: 'immigrantId',
-})
-Spouse.hasMany(EducationalHistory, {
-  unique: false,
+// Spouse.belongsTo(BusinessImmigrant, {
+//   foreignKey: 'immigrantId',
+// })
+// Spouse.belongsTo(GeneralImmigrant, {
+//   foreignKey: 'immigrantId',
+// })
+Spouse.hasMany(Qualification, {
+  constraints: false,
   scope: {
     immigrantType: 'business',
     refType: 'spouse',
   },
   foreignKey: 'immigrantId',
 })
+Spouse.hasMany(Qualification, {
+  constraints: false,
+  scope: {
+    immigrantType: 'general',
+    refType: 'spouse',
+  },
+  foreignKey: 'immigrantId',
+})
+Spouse.hasMany(Experience, {
+  constraints: false,
+  scope: {
+    immigrantType: 'general',
+    refType: 'spouse',
+  },
+  foreignKey: 'immigrantId',
+})
+Spouse.hasMany(LanguageProficiency, {
+  scope: {
+    immigrantType: 'business',
+    refType: 'spouse',
+  },
+  foreignKey: 'immigrantId',
+  constraints: false,
+})
+Spouse.hasMany(LanguageProficiency, {
+  scope: {
+    immigrantType: 'general',
+    refType: 'spouse',
+  },
+  foreignKey: 'immigrantId',
+  constraints: false,
+})
 
 /* -----------------------------------------------------------------*/
 /* ------------------- Work History Associations -------------------*/
 /* -----------------------------------------------------------------*/
-WorkHistory.belongsTo(Country)
-WorkHistory.belongsTo(State)
-WorkHistory.belongsTo(Occupation)
+Experience.belongsTo(Country)
+Experience.belongsTo(State)
+Experience.belongsTo(Occupation)
 
 /* -----------------------------------------------------------------*/
 /* ----------------- Business Profile Associations -----------------*/
 /* -----------------------------------------------------------------*/
-BusinessProfile.hasMany(WorkHistory, {
+BusinessProfile.hasMany(Experience, {
   unique: false,
   scope: {
     immigrantType: 'business',
@@ -120,77 +190,13 @@ BusinessProfile.belongsTo(State, {
   foreignKey: 'preferred_state',
   as: 'preferredState',
 })
-BusinessProfile.belongsToMany(Language, {
-  through: {
-    model: LanguageProficiencies,
-    unique: false,
-    scope: {
-      immigrantType: 'business',
-    },
+BusinessProfile.hasMany(LanguageProficiency, {
+  scope: {
+    immigrantType: 'business',
+    refType: 'applicant',
   },
-  foreignKey: 'refId',
+  foreignKey: 'immigrantId',
   constraints: false,
-  as: 'littleProficiencies',
-})
-BusinessProfile.belongsToMany(Language, {
-  through: {
-    model: LanguageProficiencies,
-    unique: false,
-    scope: {
-      immigrantType: 'business',
-    },
-  },
-  foreignKey: 'refId',
-  constraints: false,
-  as: 'moderateProficiencies',
-})
-BusinessProfile.belongsToMany(Language, {
-  through: {
-    model: LanguageProficiencies,
-    unique: false,
-    scope: {
-      immigrantType: 'business',
-    },
-  },
-  foreignKey: 'refId',
-  constraints: false,
-  as: 'highProficiencies',
-})
-BusinessProfile.belongsToMany(Language, {
-  through: {
-    model: LanguageProficiencies,
-    unique: false,
-    scope: {
-      immigrantType: 'business',
-    },
-  },
-  foreignKey: 'refId',
-  constraints: false,
-  as: 'spouseLittleProficiencies',
-})
-BusinessProfile.belongsToMany(Language, {
-  through: {
-    model: LanguageProficiencies,
-    unique: false,
-    scope: {
-      immigrantType: 'business',
-    },
-  },
-  foreignKey: 'refId',
-  constraints: false,
-  as: 'spouseModerateProficiencies',
-})
-BusinessProfile.belongsToMany(Language, {
-  through: {
-    model: LanguageProficiencies,
-    unique: false,
-    scope: {
-      immigrantType: 'business',
-    },
-  },
-  foreignKey: 'refId',
-  constraints: false,
-  as: 'spouseHighProficiencies',
 })
 BusinessProfile.belongsToMany(Country, {
   through: {
@@ -234,6 +240,100 @@ BusinessProfile.belongsToMany(Country, {
 // })
 
 /* -----------------------------------------------------------------*/
+/* ---------------- Antigua Immigrant Associations -----------------*/
+/* -----------------------------------------------------------------*/
+
+AntiguaImmigrant.belongsTo(Fund, {
+  foreignKey: 'invest_funds',
+  as: 'investRange',
+})
+AntiguaImmigrant.belongsTo(Fund, {
+  foreignKey: 'networth',
+  as: 'networthRange',
+})
+AntiguaImmigrant.belongsTo(Country, {
+  foreignKey: 'residence',
+  as: 'residenceCountry',
+})
+AntiguaImmigrant.belongsTo(Country, {
+  foreignKey: 'nationality',
+  as: 'nationalityCountry',
+})
+AntiguaImmigrant.hasMany(MailQueue, {
+  foreignKey: 'immigrantId',
+  constraints: false,
+  scope: {
+    immigrantType: 'antigua',
+  },
+})
+
+AntiguaImmigrant.belongsToMany(Country, {
+  through: {
+    model: Rejected_Countries,
+    unique: false,
+    scope: {
+      rejectedType: 'antigua',
+    },
+  },
+  as: 'RejectedCountries',
+  foreignKey: 'rejectedId',
+  constraints: false,
+})
+
+AntiguaImmigrant.belongsToMany(Country, {
+  through: {
+    model: Deported_Countries,
+    unique: false,
+    scope: {
+      deportedType: 'antigua',
+    },
+  },
+  as: 'DeportedCountries',
+  foreignKey: 'deportedId',
+  constraints: false,
+})
+
+AntiguaImmigrant.beforeCreate((immigrant) => {
+  let { contact_medium } = immigrant,
+    contactString = ''
+
+  if (contact_medium && typeof contact_medium === 'object') {
+    contact_medium.forEach((contact) => {
+      contactString += contact
+    })
+    immigrant.contact_medium = contactString
+  }
+})
+
+AntiguaImmigrant.afterCreate((immigrant) => {
+  let { email } = immigrant
+  const date = new Date()
+  const type = 'Antigua'
+  date.setMinutes(date.getMinutes() + 10)
+  console.log(`Will send 2nd mail to ${email} on: `, date)
+  sendMail(
+    {
+      to: email,
+      from: {
+        name: `Loft Immigration | ${type} Assessment`,
+        address: 'immigrants@loftimmigration.com',
+      },
+      subject: 'Application Successful',
+      html: successEmailTemplate(immigrant, type),
+    },
+    (res) => console.log(res.envelope || res)
+  )
+  immigrant.createMailQueue({
+    to: email,
+    from_name: `Loft Immigration | ${type} Assessment`,
+    from_address: 'immigrants@loftimmigration.com',
+    subject: 'Application Reviewed',
+    message: reviewedEmailTemplate(immigrant, type),
+    title: `2nd Mail to ${type} Immigrant`,
+    schedule: date,
+  })
+})
+/* -----------------------------------------------------------------*/
 /* ---------------- St.Kitts Immigrant Associations ----------------*/
 /* -----------------------------------------------------------------*/
 StkittsImmigrant.belongsTo(Fund, {
@@ -252,7 +352,13 @@ StkittsImmigrant.belongsTo(Country, {
   foreignKey: 'nationality',
   as: 'nationalityCountry',
 })
-StkittsImmigrant.hasMany(MailQueue)
+StkittsImmigrant.hasMany(MailQueue, {
+  foreignKey: 'immigrantId',
+  constraints: false,
+  scope: {
+    immigrantType: 'stkitt',
+  },
+})
 StkittsImmigrant.belongsToMany(Country, {
   through: {
     model: Rejected_Countries,
@@ -277,25 +383,72 @@ StkittsImmigrant.belongsToMany(Country, {
   foreignKey: 'deportedId',
   constraints: false,
 })
+/*--Hooks--*/
+StkittsImmigrant.beforeCreate((immigrant) => {
+  let { contact_medium } = immigrant,
+    contactString = ''
+
+  if (contact_medium && typeof contact_medium === 'object') {
+    contact_medium.forEach((contact) => {
+      contactString += contact
+    })
+    immigrant.contact_medium = contactString
+  }
+})
+StkittsImmigrant.afterCreate((immigrant) => {
+  let { email } = immigrant
+  const date = new Date()
+  const type = 'St. Kitts'
+  date.setMinutes(date.getMinutes() + 10)
+  console.log(`Will send 2nd mail to ${email} on: `, date)
+  sendMail(
+    {
+      to: email,
+      from: {
+        name: `Loft Immigration | ${type} Assessment`,
+        address: 'immigrants@loftimmigration.com',
+      },
+      subject: 'Application Successful',
+      html: successEmailTemplate(immigrant, type),
+    },
+    (res) => console.log(res.envelope || res)
+  )
+  immigrant.createMailQueue({
+    to: email,
+    from_name: `Loft Immigration | ${type} Assessment`,
+    from_address: 'immigrants@loftimmigration.com',
+    subject: 'Application Reviewed',
+    message: reviewedEmailTemplate(immigrant, type),
+    title: `2nd Mail to ${type} Immigrant`,
+    schedule: date,
+  })
+})
 
 /* -----------------------------------------------------------------*/
 /* ---------------- Business Immigrant Associations ----------------*/
 /* -----------------------------------------------------------------*/
 
-BusinessImmigrant.hasMany(EducationalHistory, {
-  unique: false,
+BusinessImmigrant.hasMany(Qualification, {
+  foreignKey: 'immigrantId',
+  constraints: false,
   scope: {
     immigrantType: 'business',
     refType: 'applicant',
   },
+})
+BusinessImmigrant.hasMany(MailQueue, {
   foreignKey: 'immigrantId',
+  constraints: false,
+  scope: {
+    immigrantType: 'business',
+  },
 })
 BusinessImmigrant.hasOne(Spouse, {
-  unique: false,
   scope: {
     spouseType: 'business',
   },
   foreignKey: 'immigrantId',
+  constraints: false,
 })
 BusinessImmigrant.belongsTo(Fund, {
   foreignKey: 'networth',
@@ -316,20 +469,199 @@ BusinessImmigrant.belongsTo(Country, {
 })
 BusinessImmigrant.beforeFindAfterExpandIncludeAll('huih', (immigrant) => {})
 
+BusinessImmigrant.beforeCreate((immigrant) => {
+  const { invest_funds, qualifications: quals, spouse, dob } = immigrant = immigrant
+ 
+  let isMsc = quals.some(qual => Number(qual.degreeId) > 2),
+    age = _calculateAge(dob),
+    spouseAge = !!spouse ? _calculateAge(spouse.dob) : 100,
+    spouseMsc = !!spouse? spouse.qualifications.some(qual => Number(qual.degreeId) > 2): false,
+    group = 0,
+    eligible_party = null
+
+  if (invest_funds >= 7 && invest_funds <= 10) {
+    group = 1
+    eligible_party = 'applicant'
+  } else if ((age <= 30 && isMsc) || (spouseAge <= 30 && spouseMsc)) {
+    group = 5
+    eligible_party = age <= 30 && isMsc ? 'applicant' : 'spouse'
+  } else if ((age < 30 && !isMsc) || (spouseAge < 30 && !spouseMsc)) {
+    group = 8
+    eligible_party = age < 30 && !isMsc ? 'applicant' : 'spouse'
+  } else if ((age > 30 && isMsc) || (spouseAge > 30 && spouseMsc)) {
+    group = 6
+    eligible_party = age > 30 && isMsc ? 'applicant' : 'spouse'
+  } else if ((age > 30 && !isMsc) || (spouseAge > 30 && !spouseMsc)) {
+    group = 7
+    eligible_party = age > 30 && !isMsc ? 'applicant' : 'spouse'
+  }
+
+  immigrant.group = group
+  immigrant.eligible_party = eligible_party
+})
+
+BusinessImmigrant.afterCreate((immigrant) => {
+  let { email } = immigrant
+  const date = new Date()
+  const type = 'Business'
+  date.setMinutes(date.getMinutes() + 10)
+  console.log(`Will send 2nd mail to ${email} on: `, date)
+  sendMail(
+    {
+      to: email,
+      from: {
+        name: `Loft Immigration | ${type} Assessment`,
+        address: 'immigrants@loftimmigration.com',
+      },
+      subject: 'Application Successful',
+      html: successEmailTemplate(immigrant, type),
+    },
+    (res) => console.log(res.envelope || res)
+  )
+  immigrant.createMailQueue({
+    to: email,
+    from_name: `Loft Immigration | ${type} Assessment`,
+    from_address: 'immigrants@loftimmigration.com',
+    subject: 'Application Reviewed',
+    message: reviewedEmailTemplate(immigrant, type),
+    title: `2nd Mail to ${type} Immigrant`,
+    schedule: date,
+  })
+})
+/* -----------------------------------------------------------------*/
+/* ---------------- General Immigrant Associations ----------------*/
+/* -----------------------------------------------------------------*/
+
+GeneralImmigrant.hasOne(Spouse, {
+  scope: {
+    spouseType: 'general',
+  },
+  foreignKey: 'immigrantId',
+  constraints: false
+})
+GeneralImmigrant.belongsTo(Country, {
+  foreignKey: 'citizenshipId',
+  as: 'citizenshipCountry',
+})
+GeneralImmigrant.belongsTo(Country, {
+  foreignKey: 'residenceId',
+  as: 'residenceCountry',
+})
+GeneralImmigrant.hasMany(Qualification, {
+  foreignKey: 'immigrantId',
+  constraints: false,
+  scope: {
+    immigrantType: 'general',
+    refType: 'applicant',
+  },
+})
+GeneralImmigrant.hasMany(LanguageProficiency, {
+  scope: {
+    immigrantType: 'general',
+    refType: 'applicant',
+  },
+  foreignKey: 'immigrantId',
+  constraints: false,
+})
+GeneralImmigrant.hasMany(Experience, {
+  unique: false,
+  scope: {
+    immigrantType: 'general',
+    refType: 'applicant'
+  },
+  foreignKey: 'immigrantId',
+})
+BusinessImmigrant.hasOne(Spouse, {
+  scope: {
+    spouseType: 'general',
+  },
+  foreignKey: 'immigrantId',
+  constraints: false,
+})
+GeneralImmigrant.hasMany(MailQueue, {
+  foreignKey: 'immigrantId',
+  constraints: false,
+  scope: {
+    immigrantType: 'general',
+  },
+})
+GeneralImmigrant.beforeFindAfterExpandIncludeAll('huih', (immigrant) => {})
+
+GeneralImmigrant.beforeCreate((immigrant) => {
+  const { qualifications: quals, spouse, dob } = immigrant
+ 
+
+  let isMsc = quals.some(qual => Number(qual.degreeId) > 2),
+    age = _calculateAge(dob),
+    spouseAge = !!spouse ? _calculateAge(spouse.dob) : 100,
+    spouseMsc = !!spouse? spouse.qualifications.some(qual => Number(qual.degreeId) > 2): false,
+    group = 0,
+    eligible_party = null
+
+  if ((age <= 30 && isMsc) || (spouseAge <= 30 && spouseMsc)) {
+    group = 5
+    eligible_party = age <= 30 && isMsc ? 'applicant' : 'spouse'
+  } else if ((age < 30 && !isMsc) || (spouseAge < 30 && !spouseMsc)) {
+    group = 8
+    eligible_party = age < 30 && !isMsc ? 'applicant' : 'spouse'
+  } else if ((age > 30 && isMsc) || (spouseAge > 30 && spouseMsc)) {
+    group = 6
+    eligible_party = age > 30 && isMsc ? 'applicant' : 'spouse'
+  } else if ((age > 30 && !isMsc) || (spouseAge > 30 && !spouseMsc)) {
+    group = 7
+    eligible_party = age > 30 && !isMsc ? 'applicant' : 'spouse'
+  }
+
+  immigrant.group = group
+  immigrant.eligible_party = eligible_party
+})
+
+GeneralImmigrant.afterCreate((immigrant) => {
+  let { email } = immigrant
+  const date = new Date()
+  const type = 'General'
+  date.setMinutes(date.getMinutes() + 10)
+  console.log(`Will send 2nd mail to ${email} on: `, date)
+  sendMail(
+    {
+      to: email,
+      from: {
+        name: `Loft Immigration | ${type} Assessment`,
+        address: 'immigrants@loftimmigration.com',
+      },
+      subject: 'Application Successful',
+      html: successEmailTemplate(immigrant, type),
+    },
+    (res) => console.log(res.envelope || res)
+  )
+  immigrant.createMailQueue({
+    to: email,
+    from_name: `Loft Immigration | ${type} Assessment`,
+    from_address: 'immigrants@loftimmigration.com',
+    subject: 'Application Reviewed',
+    message: reviewedEmailTemplate(immigrant, type),
+    title: `2nd Mail to ${type} Immigrant`,
+    schedule: date,
+  })
+})
+
 module.exports = {
   Company,
-  EducationalHistory,
+  Qualification,
   State,
   Occupation,
   MaritalStatus,
-  WorkHistory,
+  Experience,
   Spouse,
   BusinessProfile,
   Language,
+  LanguageProficiency,
   Country,
   Visited_Countries,
   Fund,
   AntiguaImmigrant,
   StkittsImmigrant,
   BusinessImmigrant,
+  GeneralImmigrant,
+  Degree,
 }

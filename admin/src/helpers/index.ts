@@ -1,3 +1,4 @@
+const { format } = require('number-currency-format')
 const logout = (err: string) => {
   if (err === 'Invalid token') {
     removeLocal('user')
@@ -36,3 +37,35 @@ export const setLocal = (name: string, content: Object | string) =>
   )
 
 export const removeLocal = (name: string) => localStorage.removeItem(name)
+
+export const _calculateAge = (birthday: string) => {
+  var ageDifMs = new Date().getTime() - new Date(birthday).getTime()
+  var ageDate = new Date(ageDifMs) // miliseconds from epoch
+  return Math.abs(ageDate.getUTCFullYear() - 1970)
+}
+
+const formatNum = (num: number) =>
+  format(num, {
+    currency: '$',
+    showDecimals: 'NEVER',
+    currencyPosition: 'LEFT',
+    spacing: false,
+  })
+
+export const fundsAction = (
+  funds: {
+    min: number
+    max: number
+    type: string
+    id: number
+  }[]
+) =>
+  funds.map((fund: { min: number; max: number; type: string; id: number }) => ({
+    name:
+      fund.min === 0
+        ? `Less than ${formatNum(fund.max)}`
+        : fund.max === 0
+        ? `Above ${formatNum(fund.min)}`
+        : `${formatNum(fund.min)} to ${formatNum(fund.max)}`,
+    value: fund.id,
+  }))

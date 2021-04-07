@@ -6,20 +6,21 @@ const { DataTypes } = Sequelize
 const Spouse = sequelize.define('spouse', {
   first_name: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
+    defaultValue: 'Nil',
   },
   last_name: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
+    defaultValue: 'Nil',
   },
   dob: {
     type: DataTypes.DATE,
     allowNull: false,
   },
-  spouseType: {
-    type: DataTypes.STRING,
-    unique: 'tt_unique_constraint',
-  },
+  immigrantId: DataTypes.INTEGER,
+  
+  spouseType: DataTypes.STRING,
 })
 
 module.exports = Spouse
