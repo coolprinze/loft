@@ -6,8 +6,9 @@ const mailer = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: 'immigrants@loftimmigration.com',
-    pass: 'm1P5?*tw7gcT',
+    user: 'clientsupport@loftimmigration.com',
+    pass: 'Loftiffany01.',
+    // pass: 'm1P5?*tw7gcT',
   },
   tls: {
     rejectUnauthorized: false,

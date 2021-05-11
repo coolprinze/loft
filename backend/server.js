@@ -1,5 +1,8 @@
 const { config } = require('dotenv')
 const express = require('express')
+// const fs = require('fs')
+// const path = require('path')
+// const morgan = require('morgan')
 const sequelize = require('./config/db.js')
 const { mailer } = require('./config/mailer.js')
 const { errorHandler, notFound } = require('./middleware/errorMiddleware.js')
@@ -16,6 +19,17 @@ const userRoutes = require('./routes/userRoutes.js')
 config()
 
 const app = express()
+
+// // create a write stream (in append mode)
+// var accessLogStream = fs.createWriteStream(
+//   path.join(__dirname, 'logfile.log'),
+//   {
+//     flags: 'a',
+//   }
+// )
+
+// // setup the logger
+// app.use(morgan('combined', { stream: accessLogStream }))
 
 // verify mailer connection configuration
 mailer.verify(function (error, success) {
@@ -41,7 +55,7 @@ const job = Job('*/30 * * * * *', async () => {
       where: { schedule: { [Op.lte]: now }, status: 'waiting' },
     })
 
-  mails.every((mail) => {
+  mails.forEach((mail) => {
     const {
       to,
       from_name: name,
@@ -50,11 +64,13 @@ const job = Job('*/30 * * * * *', async () => {
       message: html,
       schedule,
     } = mail
-    sendMail({ to, from: { name, address }, subject, html }, (res) => {
-      console.log(res.envelope || res)
-      if (res.envelope) {
+    sendMail({ to, from: { name, address }, subject, html }, (err, res) => {
+      if (err) {
+        mail.update({ status: err.message })
+        console.log(`Failed to send 2nd mail to ${to} on: `, schedule)
+      } else if (res.envelope) {
         mail.update({ status: 'sent' })
-        console.log(`Sent 2nd mail to ${email} on: `, schedule)
+        console.log(`Sent 2nd mail to ${to} on: `, schedule)
       }
     })
   })
@@ -76,7 +92,10 @@ var corsOptions = {
   ],
   optionsSuccessStatus: 200,
 }
-app.get('/test', (req, res) => res.send('API is running...'))
+app.get('/test', (req, res) => {
+  console.log('Api Running')
+  res.send('API is running fine...')
+})
 app.use('/seeds', seederRoutes)
 app.use('/users', cors(corsOptions), userRoutes)
 app.use('/utilities', cors(corsOptions), utilityRoutes)

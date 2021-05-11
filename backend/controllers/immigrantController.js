@@ -9,7 +9,11 @@ const {
   Spouse,
   GeneralImmigrant,
   Experience,
-  LanguageProficiency
+  LanguageProficiency,
+  Language,
+  Country,
+  Degree,
+  Occupation,
 } = require('../models/index.js')
 const { throwErr } = require('../utils/errorUtils.js')
 
@@ -45,6 +49,38 @@ const registerImmigrant = asyncHandler(async (req, res) => {
       throwErr('Invalid data')
     }
   })
+})
+
+// @desc    Update Business Immigrant
+// @access  Private
+const updateBusinessImmigrant = asyncHandler(async (req, res) => {
+  const immigrant = await BusinessImmigrant.findByPk(req.params.id)
+  if (immigrant) {
+    immigrant.client_status = true
+
+    await immigrant.save()
+
+    res.json(immigrant)
+  } else {
+    res.status(404)
+    throwErr('Immigrant not found')
+  }
+})
+
+// @desc    Update General Immigrant
+// @access  Private
+const updateGeneralImmigrant = asyncHandler(async (req, res) => {
+  const immigrant = await GeneralImmigrant.findByPk(req.params.id)
+  if (immigrant) {
+    immigrant.client_status = true
+
+    const client = await immigrant.save()
+
+    res.json(client)
+  } else {
+    res.status(404)
+    throwErr('Immigrant not found')
+  }
 })
 
 const registerBusinessImmigrant = asyncHandler(async (req, res) => {
@@ -93,17 +129,13 @@ const registerGeneralImmigrant = asyncHandler(async (req, res) => {
   await sequelize.transaction(async (transaction) => {
     const immigrant = await GeneralImmigrant.create(data, {
       include: [
-        Qualification, 
-        Experience, 
+        Qualification,
+        Experience,
         LanguageProficiency,
-        { 
-          model: Spouse, 
-          include: [
-            Qualification, 
-            Experience, 
-            LanguageProficiency
-          ] 
-        }
+        {
+          model: Spouse,
+          include: [Qualification, Experience, LanguageProficiency],
+        },
       ],
       transaction,
     })
@@ -126,12 +158,31 @@ const getImmigrants = asyncHandler(async (req, res) => {
   let Immigrant,
     searchQuery = {},
     q = {},
-    dateRange = {}
+    dateRange = {},
+    include = { all: true, include: { all: true } }
   validSearchParam = []
   if (type === 'antigua') Immigrant = AntiguaImmigrant
   else if (type === 'stkitts') Immigrant = StkittsImmigrant
   else if (type === 'businesses') {
     Immigrant = BusinessImmigrant
+    include = [
+      {
+        model: Spouse,
+        include: [
+          { model: Qualification, include: [Country, Degree] },
+          'birthCountry',
+        ],
+      },
+      'citizenshipCountry',
+      'residenceCountry',
+      'investRange',
+      'networthRange',
+      {
+        model: Qualification,
+        include: [Country, Degree],
+      },
+    ]
+
     validSearchParam = [
       'first_name',
       'last_name',
@@ -142,9 +193,35 @@ const getImmigrants = asyncHandler(async (req, res) => {
       'group',
       'eligible_party',
       'invest_funds',
+      'client_status',
     ]
   } else if (type === 'generals') {
     Immigrant = GeneralImmigrant
+    include = [
+      {
+        model: Spouse,
+        include: [
+          { model: Qualification, include: [Country, Degree] },
+          { model: Experience, include: [Country, Occupation] },
+          {
+            model: LanguageProficiency,
+            include: [Language],
+          },
+          'birthCountry',
+        ],
+      },
+      'citizenshipCountry',
+      'residenceCountry',
+      {
+        model: LanguageProficiency,
+        include: [Language],
+      },
+      {
+        model: Qualification,
+        include: [Country, Degree],
+      },
+      { model: Experience, include: [Country, Occupation] },
+    ]
     validSearchParam = [
       'first_name',
       'last_name',
@@ -153,6 +230,7 @@ const getImmigrants = asyncHandler(async (req, res) => {
       'dob',
       'group',
       'eligible_party',
+      'client_status',
     ]
   } else throwErr('Invalid Url')
 
@@ -187,7 +265,7 @@ const getImmigrants = asyncHandler(async (req, res) => {
       if (validSearchParam.includes(key))
         moreQuery[key] = { [Op.like]: `%${value}%` }
     }
-    
+
     searchQuery = {
       where: {
         ...q,
@@ -198,9 +276,17 @@ const getImmigrants = asyncHandler(async (req, res) => {
   }
   const immigrants = await Immigrant.findAll({
     ...searchQuery,
-    include: { all: true, include: { all: true } },
+    include,
+    order: ['id'],
   })
 
   res.send(immigrants)
 })
-module.exports = { registerImmigrant, getImmigrants, registerBusinessImmigrant, registerGeneralImmigrant }
+module.exports = {
+  registerImmigrant,
+  getImmigrants,
+  registerBusinessImmigrant,
+  registerGeneralImmigrant,
+  updateBusinessImmigrant,
+  updateGeneralImmigrant,
+}

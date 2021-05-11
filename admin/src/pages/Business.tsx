@@ -4,25 +4,29 @@ import React, { Component } from 'react'
 import { CSVLink } from 'react-csv'
 import NumberFormat from 'react-number-format'
 import { connect } from 'react-redux'
-import { Card, Col, Row, Table } from 'reactstrap'
+import { withRouter } from 'react-router'
+import { toast } from 'react-toastify'
+import { Button, Card, Col, Row, Table } from 'reactstrap'
 import {
   collectionType,
   getBusinessImmigrants,
   searchDb,
+  updateImmigrant,
 } from '../actions/ImmigrantActions'
 import { DateInputGroup, SelectGroup, TextInputGroup } from '../components/Form'
 import Loading from '../components/Loading'
-import { _calculateAge } from '../helpers'
+import { qualToString, _calculateAge } from '../helpers'
 import { businessType } from '../interface/businessType'
 
 const data = {
   titles: [
     { title: '', field: 'id' },
+    { title: 'Convert To Client', field: 'client_status' },
     { title: 'Name', field: 'name' },
     { title: 'group', field: 'group' },
     { title: 'Eligible Party', field: 'eligible_party' },
-    { title: 'networth', field: 'networthRange' },
     { title: 'invest funds', field: 'investRange' },
+    { title: 'networth', field: 'networthRange' },
     { title: 'nationality', field: 'citizenshipCountry' },
     { title: 'Residence', field: 'residenceCountry' },
     { title: 'email', field: 'email' },
@@ -30,15 +34,19 @@ const data = {
     { title: 'DOB', field: 'dob' },
     { title: 'Married', field: 'Married' },
     { title: 'Man Experience', field: 'managerial_experience' },
+    { title: 'Qualifications', field: 'qualifications' },
+    { title: 'Spouse', field: 'spouse' },
     { title: 'Created At', field: 'createdAt' },
   ],
 }
 
 class Business extends Component<{
   getBusinessImmigrants: (collection: collectionType) => AxiosPromise
+  updateImmigrant: (id: number, data: any, type: collectionType) => AxiosPromise
   searchDb: (collection: collectionType, searchParam: object) => AxiosPromise
   businessList: businessType[]
   countries: { name: string; value: number }[]
+  title: string
   investRanges: { name: string; value: number }[]
 }> {
   state = {
@@ -49,12 +57,16 @@ class Business extends Component<{
     startDate: '',
     endDate: '',
     sortConfig: { field: null, asc: true },
+    isClients: 0,
   }
 
   async componentDidMount() {
-    this.setState({ loading: true })
+    // @ts-ignore
+    const { id } = this.props.match.params
+    const isClients = id === 'clients' ? 1 : 0
+    this.setState({ loading: true, isClients })
     await this.props
-      .getBusinessImmigrants('businesses')
+      .searchDb(`businesses`, { client_status: isClients })
       .then((data) => this.setState({ loading: false, data }))
       .catch((err) => this.setState({ loading: false }))
   }
@@ -99,26 +111,48 @@ class Business extends Component<{
   onSearch = () =>
     this.setState({ loading: true }, () =>
       this.props
-        .searchDb('businesses', this.state.query)
+        .searchDb('businesses', {
+          ...this.state.query,
+          client_status: this.state.isClients,
+        })
         .then((res) => this.setState({ loading: false }))
         .catch((err) => this.setState({ loading: false }))
     )
 
+  updateImmigrant = (id: number) =>
+    this.setState({ loading: true }, () =>
+      this.props
+        .updateImmigrant(id, { client_status: true }, 'businesses')
+        .then((res) =>
+          this.setState({ loading: false }, () => {
+            toast('Selected lead is now a client')
+          })
+        )
+        .catch((err) =>
+          this.setState({ loading: false }, () => {
+            toast(err.response.message)
+          })
+        )
+    )
+
   render() {
-    const { businessList, investRanges } = this.props,
+    const { businessList, investRanges, title } = this.props,
       {
         loading,
         invest_funds,
         startDate,
         endDate,
         sortConfig: { asc, field: sortField },
+        isClients,
       } = this.state
     return (
       <div id='requests' className='px-0 w-100 mx-auto'>
         <Loading show={loading} />
         <Row>
           <Col>
-            <h2>Business</h2>
+            <h2>
+              {title} {isClients ? 'Clients' : 'Leads'}
+            </h2>
           </Col>
         </Row>
         <Row>
@@ -158,6 +192,7 @@ class Business extends Component<{
                   managerial_experience,
                   residenceCountry,
                   citizenshipCountry,
+                  qualifications,
                 }) => ({
                   first_name,
                   last_name,
@@ -172,6 +207,12 @@ class Business extends Component<{
                   residenceCountry: residenceCountry.name,
                   citizenshipCountry: citizenshipCountry.name,
                   managerial_experience,
+                  qualifications: qualToString(qualifications),
+                  spouse: spouse
+                    ? `${_calculateAge(spouse.dob)} years | ${
+                        spouse.birthCountry.name
+                      } \n| ${qualToString(spouse.qualifications)}`
+                    : 'NIL',
                   createdAt,
                 })
               )}
@@ -268,26 +309,30 @@ class Business extends Component<{
           <Table responsive striped bordered>
             <thead>
               <tr>
-                {data.titles.map(({ title, field }, key) => (
-                  <th className='text-capitalize' key={key}>
-                    {title}{' '}
-                    <button
-                      className='d-inline btn btn-link px-0'
-                      onClick={() => this.sortData(field)}
-                    >
-                      <i
-                        className={`fa fa-angle-down mr-0 ${
-                          sortField === field && asc ? 'text-secondary' : ''
-                        }`}
-                      ></i>
-                      <i
-                        className={`fa fa-angle-up mr-0 ${
-                          sortField === field && !asc ? 'text-secondary' : ''
-                        }`}
-                      ></i>
-                    </button>
-                  </th>
-                ))}
+                {data.titles.map(({ title, field }, key) =>
+                  isClients && field === 'client_status' ? (
+                    ''
+                  ) : (
+                    <th className='text-capitalize' key={key}>
+                      {title}{' '}
+                      <button
+                        className='d-inline btn btn-link px-0'
+                        onClick={() => this.sortData(field)}
+                      >
+                        <i
+                          className={`fa fa-angle-down mr-0 ${
+                            sortField === field && asc ? 'text-secondary' : ''
+                          }`}
+                        ></i>
+                        <i
+                          className={`fa fa-angle-up mr-0 ${
+                            sortField === field && !asc ? 'text-secondary' : ''
+                          }`}
+                        ></i>
+                      </button>
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody>
@@ -300,6 +345,7 @@ class Business extends Component<{
                   dob,
                   eligible_party,
                   phone,
+                  qualifications,
                   spouse,
                   createdAt,
                   investRange,
@@ -307,10 +353,26 @@ class Business extends Component<{
                   managerial_experience,
                   residenceCountry,
                   citizenshipCountry,
+                  id,
+                  client_status,
                 } = immigrant
                 return (
                   <tr key={key}>
                     <th scope='row'>{key + 1}</th>
+                    {isClients ? (
+                      ''
+                    ) : (
+                      <td>
+                        <Button
+                          color={client_status ? 'secondary' : 'success'}
+                          onClick={() => this.updateImmigrant(id)}
+                          size='sm'
+                          disabled={client_status}
+                        >
+                          {client_status ? 'Converted' : 'Convert to Client'}
+                        </Button>
+                      </td>
+                    )}
                     <td>{`${first_name} ${last_name}`}</td>
                     <td>Group {group}</td>
                     <td>{eligible_party}</td>
@@ -351,6 +413,21 @@ class Business extends Component<{
                     <td>{_calculateAge(dob)}</td>
                     <td>{spouse !== null ? 'true' : 'false'}</td>
                     <td>{managerial_experience ? 'true' : 'false'}</td>
+                    <td>{qualToString(qualifications)}</td>
+                    <td>
+                      {spouse ? (
+                        <>
+                          <strong>Age:</strong>{' '}
+                          {`${_calculateAge(spouse.dob)} years`}
+                          <br />
+                          <strong>Quals:</strong>{' '}
+                          {qualToString(spouse.qualifications)}
+                          <br />
+                        </>
+                      ) : (
+                        'NIL'
+                      )}
+                    </td>
 
                     <td>{moment(createdAt).format('L | HH:mm')}</td>
                   </tr>
@@ -372,8 +449,10 @@ class Business extends Component<{
 const mapStateToProps = ({ businessList }: { businessList: [] }) => ({
   ...businessList,
 })
-
-export default connect(mapStateToProps, { getBusinessImmigrants, searchDb })(
-  //@ts-ignore
-  Business
-)
+const connectProps = connect(mapStateToProps, {
+  getBusinessImmigrants,
+  searchDb,
+  updateImmigrant,
+})
+//@ts-ignore
+export default connectProps(withRouter(Business))

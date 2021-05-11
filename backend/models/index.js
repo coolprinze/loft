@@ -53,39 +53,39 @@ Qualification.belongsTo(Degree)
 /* --------------------- Country Associations ----------------------*/
 /* -----------------------------------------------------------------*/
 Country.hasMany(State)
-Country.belongsToMany(StkittsImmigrant, {
-  through: {
-    model: Deported_Countries,
-    unique: false,
-  },
-  foreignKey: 'countryId',
-  constraints: false,
-})
-Country.belongsToMany(StkittsImmigrant, {
-  through: {
-    model: Rejected_Countries,
-    unique: false,
-  },
-  foreignKey: 'countryId',
-  constraints: false,
-})
-Country.belongsToMany(AntiguaImmigrant, {
-  through: {
-    model: Deported_Countries,
-    unique: false,
-  },
-  foreignKey: 'countryId',
-  constraints: false,
-})
+// Country.belongsToMany(StkittsImmigrant, {
+//   through: {
+//     model: Deported_Countries,
+//     unique: false,
+//   },
+//   foreignKey: 'countryId',
+//   constraints: false,
+// })
+// Country.belongsToMany(StkittsImmigrant, {
+//   through: {
+//     model: Rejected_Countries,
+//     unique: false,
+//   },
+//   foreignKey: 'countryId',
+//   constraints: false,
+// })
+// Country.belongsToMany(AntiguaImmigrant, {
+//   through: {
+//     model: Deported_Countries,
+//     unique: false,
+//   },
+//   foreignKey: 'countryId',
+//   constraints: false,
+// })
 
-Country.belongsToMany(AntiguaImmigrant, {
-  through: {
-    model: Rejected_Countries,
-    unique: false,
-  },
-  foreignKey: 'countryId',
-  constraints: false,
-})
+// Country.belongsToMany(AntiguaImmigrant, {
+//   through: {
+//     model: Rejected_Countries,
+//     unique: false,
+//   },
+//   foreignKey: 'countryId',
+//   constraints: false,
+// })
 
 /* -----------------------------------------------------------------*/
 /* ------------------ Marital Status Associations ------------------*/
@@ -158,11 +158,12 @@ Experience.belongsTo(Occupation)
 /* ----------------- Business Profile Associations -----------------*/
 /* -----------------------------------------------------------------*/
 BusinessProfile.hasMany(Experience, {
-  unique: false,
+  foreignKey: 'immigrantId',
+  constraints: false,
   scope: {
     immigrantType: 'business',
+    refType: 'applicant',
   },
-  foreignKey: 'immigrantId',
 })
 BusinessProfile.belongsTo(State, {
   foreignKey: 'currect_city',
@@ -467,33 +468,54 @@ BusinessImmigrant.belongsTo(Country, {
   foreignKey: 'citizenshipId',
   as: 'citizenshipCountry',
 })
-BusinessImmigrant.beforeFindAfterExpandIncludeAll('huih', (immigrant) => {})
 
-BusinessImmigrant.beforeCreate((immigrant) => {
-  const { invest_funds, qualifications: quals, spouse, dob } = immigrant = immigrant
- 
-  let isMsc = quals.some(qual => Number(qual.degreeId) > 2),
+BusinessImmigrant.beforeCreate(async (immigrant) => {
+  const {
+    invest_funds,
+    qualifications: quals,
+    spouse,
+    dob,
+  } = (immigrant = immigrant)
+
+  const fund = await Fund.findByPk(Number(invest_funds))
+
+  let isMsc = quals.some((qual) => Number(qual.degreeId) > 2),
     age = _calculateAge(dob),
     spouseAge = !!spouse ? _calculateAge(spouse.dob) : 100,
-    spouseMsc = !!spouse? spouse.qualifications.some(qual => Number(qual.degreeId) > 2): false,
+    spouseMsc = !!spouse
+      ? spouse.qualifications.some((qual) => Number(qual.degreeId) > 2)
+      : false,
     group = 0,
     eligible_party = null
 
-  if (invest_funds >= 7 && invest_funds <= 10) {
-    group = 1
-    eligible_party = 'applicant'
-  } else if ((age <= 30 && isMsc) || (spouseAge <= 30 && spouseMsc)) {
-    group = 5
-    eligible_party = age <= 30 && isMsc ? 'applicant' : 'spouse'
-  } else if ((age < 30 && !isMsc) || (spouseAge < 30 && !spouseMsc)) {
-    group = 8
-    eligible_party = age < 30 && !isMsc ? 'applicant' : 'spouse'
-  } else if ((age > 30 && isMsc) || (spouseAge > 30 && spouseMsc)) {
-    group = 6
-    eligible_party = age > 30 && isMsc ? 'applicant' : 'spouse'
-  } else if ((age > 30 && !isMsc) || (spouseAge > 30 && !spouseMsc)) {
-    group = 7
-    eligible_party = age > 30 && !isMsc ? 'applicant' : 'spouse'
+  if (fund) {
+    const gt150k = fund.min >= 150000
+    const gt25k = fund.min >= 25000
+    if (gt150k) {
+      group = 1
+      eligible_party = 'applicant'
+    } else if (
+      gt25k &&
+      ((age <= 30 && isMsc) || (spouseAge <= 30 && spouseMsc))
+    ) {
+      group = 5
+      eligible_party = age <= 30 && isMsc ? 'applicant' : 'spouse'
+    } else if ((age < 30 && !isMsc) || (spouseAge < 30 && !spouseMsc)) {
+      group = 8
+      eligible_party = age < 30 && !isMsc ? 'applicant' : 'spouse'
+    } else if (
+      gt25k &&
+      ((age > 30 && isMsc) || (spouseAge > 30 && spouseMsc))
+    ) {
+      group = 6
+      eligible_party = age > 30 && isMsc ? 'applicant' : 'spouse'
+    } else if (
+      gt25k &&
+      ((age > 30 && !isMsc) || (spouseAge > 30 && !spouseMsc))
+    ) {
+      group = 7
+      eligible_party = age > 30 && !isMsc ? 'applicant' : 'spouse'
+    }
   }
 
   immigrant.group = group
@@ -501,7 +523,7 @@ BusinessImmigrant.beforeCreate((immigrant) => {
 })
 
 BusinessImmigrant.afterCreate((immigrant) => {
-  let { email } = immigrant
+  let { email, group } = immigrant
   const date = new Date()
   const type = 'Business'
   date.setMinutes(date.getMinutes() + 10)
@@ -510,23 +532,24 @@ BusinessImmigrant.afterCreate((immigrant) => {
     {
       to: email,
       from: {
-        name: `Loft Immigration | ${type} Assessment`,
-        address: 'immigrants@loftimmigration.com',
+        name: `Loft Immigration | Canada ${type} Immigration`,
+        address: 'clientsupport@loftimmigration.com',
       },
-      subject: 'Application Successful',
+      subject: 'Assessment Form Received',
       html: successEmailTemplate(immigrant, type),
     },
     (res) => console.log(res.envelope || res)
   )
-  immigrant.createMailQueue({
-    to: email,
-    from_name: `Loft Immigration | ${type} Assessment`,
-    from_address: 'immigrants@loftimmigration.com',
-    subject: 'Application Reviewed',
-    message: reviewedEmailTemplate(immigrant, type),
-    title: `2nd Mail to ${type} Immigrant`,
-    schedule: date,
-  })
+  if (group == 1)
+    immigrant.createMailQueue({
+      to: email,
+      from_name: `Loft Immigration | Canada ${type} Immigration`,
+      from_address: 'clientsupport@loftimmigration.com',
+      subject: 'Assessment Reviewed',
+      message: reviewedEmailTemplate(immigrant, type),
+      title: `2nd Mail to ${type} Immigrant`,
+      schedule: date,
+    })
 })
 /* -----------------------------------------------------------------*/
 /* ---------------- General Immigrant Associations ----------------*/
@@ -537,7 +560,7 @@ GeneralImmigrant.hasOne(Spouse, {
     spouseType: 'general',
   },
   foreignKey: 'immigrantId',
-  constraints: false
+  constraints: false,
 })
 GeneralImmigrant.belongsTo(Country, {
   foreignKey: 'citizenshipId',
@@ -564,19 +587,12 @@ GeneralImmigrant.hasMany(LanguageProficiency, {
   constraints: false,
 })
 GeneralImmigrant.hasMany(Experience, {
-  unique: false,
-  scope: {
-    immigrantType: 'general',
-    refType: 'applicant'
-  },
-  foreignKey: 'immigrantId',
-})
-BusinessImmigrant.hasOne(Spouse, {
-  scope: {
-    spouseType: 'general',
-  },
   foreignKey: 'immigrantId',
   constraints: false,
+  scope: {
+    immigrantType: 'general',
+    refType: 'applicant',
+  },
 })
 GeneralImmigrant.hasMany(MailQueue, {
   foreignKey: 'immigrantId',
@@ -585,16 +601,16 @@ GeneralImmigrant.hasMany(MailQueue, {
     immigrantType: 'general',
   },
 })
-GeneralImmigrant.beforeFindAfterExpandIncludeAll('huih', (immigrant) => {})
 
 GeneralImmigrant.beforeCreate((immigrant) => {
   const { qualifications: quals, spouse, dob } = immigrant
- 
 
-  let isMsc = quals.some(qual => Number(qual.degreeId) > 2),
+  let isMsc = quals.some((qual) => Number(qual.degreeId) > 2),
     age = _calculateAge(dob),
     spouseAge = !!spouse ? _calculateAge(spouse.dob) : 100,
-    spouseMsc = !!spouse? spouse.qualifications.some(qual => Number(qual.degreeId) > 2): false,
+    spouseMsc = !!spouse
+      ? spouse.qualifications.some((qual) => Number(qual.degreeId) > 2)
+      : false,
     group = 0,
     eligible_party = null
 

@@ -1,3 +1,10 @@
+import moment from 'moment'
+import {
+  experienceType,
+  languageProfType,
+  qualificationType,
+} from '../interface'
+
 const { format } = require('number-currency-format')
 const logout = (err: string) => {
   if (err === 'Invalid token') {
@@ -7,8 +14,8 @@ const logout = (err: string) => {
   }
 }
 
-export const getObject = (collection: any[], key: any) => {
-  return collection.find((object: any) => object.id == key)
+export const getObject = (collection: any[], key: number) => {
+  return collection.find((object: any) => object.id === key)
 }
 
 export const toPlural = (val: number, text: string) =>
@@ -60,12 +67,70 @@ export const fundsAction = (
     id: number
   }[]
 ) =>
-  funds.map((fund: { min: number; max: number; type: string; id: number }) => ({
-    name:
-      fund.min === 0
-        ? `Less than ${formatNum(fund.max)}`
-        : fund.max === 0
-        ? `Above ${formatNum(fund.min)}`
-        : `${formatNum(fund.min)} to ${formatNum(fund.max)}`,
-    value: fund.id,
-  }))
+  funds
+    .sort((a, b) => a.min - b.min)
+    .map((fund) => ({
+      name:
+        fund.min === 0
+          ? `Less than ${formatNum(fund.max)}`
+          : fund.max === 0
+          ? `Above ${formatNum(fund.min)}`
+          : `${formatNum(fund.min)} to ${formatNum(fund.max)}`,
+      value: fund.id,
+    }))
+
+export const dateDiffsToReadable = (date1: string, date2: string) => {
+  var a = moment(date1)
+  var b = moment(date2)
+
+  var years = b.diff(a, 'year')
+  a.add(years, 'years')
+
+  var months = b.diff(a, 'months')
+  a.add(months, 'months')
+
+  return `${years} years ${months ? `and ${months} months` : ''}`
+}
+
+export const qualToString = (_qs: qualificationType[]) => {
+  let qs = ''
+
+  _qs.map(({ from, to, degree, school, city, country }, index) => {
+    qs += `(${dateDiffsToReadable(from, to)} ${
+      degree.title
+    } in ${school}, ${city} ${country.name})${
+      index + 1 === _qs.length ? '' : ','
+    } `
+    return null
+  })
+
+  return _qs.length ? qs : 'None'
+}
+
+export const experienceToString = (_es: experienceType[]) => {
+  let es = ''
+
+  _es.map(({ from, to, employer, city, occupation, country }, index) => {
+    es += `(Worked ${dateDiffsToReadable(from, to)} as a/an ${
+      occupation.name
+    } in ${employer}, ${city} ${country.name})${
+      index + 1 === _es.length ? '' : ','
+    } `
+    return null
+  })
+
+  return _es.length ? es : 'None'
+}
+
+export const laguageToString = (_ls: languageProfType[]) => {
+  let ls = ''
+
+  _ls.map(({ level, language }, index) => {
+    ls += `(${language.name} >> ${level})${
+      index + 1 === _ls.length ? '' : ','
+    } `
+    return null
+  })
+
+  return _ls.length ? ls : 'None'
+}

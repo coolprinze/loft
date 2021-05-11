@@ -10,8 +10,10 @@ export type spouseType = {
   first_name: string
   last_name: string
   dob: string
-  country: countryType
-  qualifications: qualificationType
+  birthCountry: countryType
+  qualifications: qualificationType[]
+  work_histories: experienceType[]
+  language_proficiencies: languageProfType[]
 }
 
 export type countryType = {
@@ -20,6 +22,15 @@ export type countryType = {
   code: string
   slug: string
   flag: string
+  desc: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type jobType = {
+  id: number
+  name: string
+  slug: string
   desc: string
   createdAt: string
   updatedAt: string
@@ -42,6 +53,18 @@ export type degreeType = {
   updatedAt: string
 }
 
+export type experienceType = {
+  id: number
+  from: string
+  to: string
+  employer: string
+  city: string
+  occupation: jobType
+  country: countryType
+  createdAt: string
+  updatedAt: string
+}
+
 export type qualificationType = {
   id: number
   from: string
@@ -51,6 +74,14 @@ export type qualificationType = {
   country: countryType
   state: stateType
   degree: degreeType
+  createdAt: string
+  updatedAt: string
+}
+
+export type languageProfType = {
+  id: number
+  level: string
+  language: { name: string }
   createdAt: string
   updatedAt: string
 }

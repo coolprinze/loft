@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, Redirect, Route, Switch, NavLink } from 'react-router-dom'
-import { Card, Col, Row, Button } from 'reactstrap'
+import { Card, Col, Row, Button, Collapse } from 'reactstrap'
 import { showcaseBg, avatar1, logo } from '../assets/img'
 import Loading from '../components/Loading'
 import Section from '../components/Section'
@@ -23,6 +23,7 @@ class AdminLayout extends Component<{
     loading: false,
     countries: [],
     investRanges: [],
+    isOpen: '',
   }
 
   componentDidMount() {
@@ -49,11 +50,17 @@ class AdminLayout extends Component<{
 
   toggleMenu = () => this.setState({ showMenu: !this.state.showMenu })
 
+  toggleMenuChildren = (menu: string = '') => this.setState({ isOpen: menu })
+
   getRoutes = (
     routes: {
       path: string
       name: string
-      component: React.ComponentClass<{ countries: any; investRanges: any }>
+      component: React.ComponentClass<{
+        countries: any
+        investRanges: any
+        title: string
+      }>
     }[]
   ) => {
     const { investRanges, countries } = this.state
@@ -69,6 +76,7 @@ class AdminLayout extends Component<{
               })
             )}
             investRanges={fundsAction(investRanges)}
+            title={prop.name}
           />
         )}
         key={key}
@@ -78,7 +86,7 @@ class AdminLayout extends Component<{
 
   render() {
     const { user } = this.props,
-      { showMenu } = this.state
+      { showMenu, isOpen } = this.state
 
     return user ? (
       <Section
@@ -95,12 +103,12 @@ class AdminLayout extends Component<{
                   className='fa fa-bars d-md-none float-left'
                   onClick={() => this.toggleMenu()}
                 ></i>
-                <Link to='/'>
-                  <span className=' float-md-none float-right'>Dashboard</span>
-                </Link>
+                <span className=' float-md-none float-right'>Dashboard</span>
               </h2>
               <div className='text-center'>
-                <img src={`${logo}`} alt='Loft' height={60} />
+                <Link to={`${process.env.PUBLIC_URL}`}>
+                  <img src={`${logo}`} alt='Loft' height={60} />
+                </Link>
               </div>
             </Card>
           </div>
@@ -118,7 +126,7 @@ class AdminLayout extends Component<{
               <Card className='bg-faded p-4 h-100'>
                 <h2 className='text-right'>
                   <i
-                    onClick={() => this.toggleMenu()}
+                    onClick={() => this.setState({ showMenu: false })}
                     className='d-md-none fa fa-times'
                   ></i>
                 </h2>
@@ -136,10 +144,78 @@ class AdminLayout extends Component<{
                 </div>
                 <div id='menu' className='mt-4'>
                   <p className='mb-1'>
+                    <Link
+                      onClick={() => this.toggleMenuChildren('business')}
+                      to={`${process.env.PUBLIC_URL}/business/leads`}
+                    >
+                      <i
+                        className={`fa fa-angle-${
+                          isOpen === 'business' ? 'down' : 'right'
+                        }`}
+                      ></i>{' '}
+                      Business Immigrants
+                    </Link>
+                    <Collapse isOpen={isOpen === 'business'} className='pl-4'>
+                      <p className='mb-1'>
+                        <NavLink
+                          activeClassName='active'
+                          onClick={this.toggleMenu}
+                          to={`${process.env.PUBLIC_URL}/business/leads`}
+                        >
+                          Business Leads
+                        </NavLink>
+                      </p>
+                      <p className='mb-1'>
+                        <NavLink
+                          activeClassName='active'
+                          onClick={this.toggleMenu}
+                          to={`${process.env.PUBLIC_URL}/business/clients`}
+                        >
+                          Business Clients
+                        </NavLink>
+                      </p>
+                    </Collapse>
+                  </p>
+                  <hr className='mt-0 mb-3' />
+                  <p className='mb-1'>
+                    <Link
+                      onClick={() => this.toggleMenuChildren('general')}
+                      to={`${process.env.PUBLIC_URL}/general/leads`}
+                    >
+                      <i
+                        className={`fa fa-angle-${
+                          isOpen === 'general' ? 'down' : 'right'
+                        }`}
+                      ></i>{' '}
+                      General Immigrants
+                    </Link>
+                    <Collapse isOpen={isOpen === 'general'} className='pl-4'>
+                      <p className='mb-1'>
+                        <NavLink
+                          activeClassName='active'
+                          onClick={this.toggleMenu}
+                          to={`${process.env.PUBLIC_URL}/general/leads`}
+                        >
+                          General Leads
+                        </NavLink>
+                      </p>
+                      <p className='mb-1'>
+                        <NavLink
+                          activeClassName='active'
+                          onClick={this.toggleMenu}
+                          to={`${process.env.PUBLIC_URL}/general/clients`}
+                        >
+                          General Clients
+                        </NavLink>
+                      </p>
+                    </Collapse>
+                  </p>
+                  <hr className='mt-0 mb-3' />
+                  <p className='mb-1'>
                     <NavLink
                       activeClassName='active'
                       onClick={this.toggleMenu}
-                      to='/antigua'
+                      to={`${process.env.PUBLIC_URL}/antigua`}
                     >
                       Antigua Immigrants
                     </NavLink>
@@ -149,42 +225,12 @@ class AdminLayout extends Component<{
                     <NavLink
                       activeClassName='active'
                       onClick={this.toggleMenu}
-                      to='/stkitts'
+                      to={`${process.env.PUBLIC_URL}/stkitts`}
                     >
                       St. Kitts Immigrants
                     </NavLink>
                   </p>
                   <hr className='mt-0 mb-3' />
-                  <p className='mb-1'>
-                    <NavLink
-                      activeClassName='active'
-                      onClick={this.toggleMenu}
-                      to='/businesses'
-                    >
-                      Business Immigrants
-                    </NavLink>
-                  </p>
-                  <hr className='mt-0 mb-3' />
-                  <p className='mb-1'>
-                    <NavLink
-                      activeClassName='active'
-                      onClick={this.toggleMenu}
-                      to='/generals'
-                    >
-                      General Immigrants
-                    </NavLink>
-                  </p>
-                  <hr className='mt-0 mb-3' />
-                  {/* <p className="mb-1">
-                    <NavLink
-                      activeClassName="active"
-                      onClick={this.toggleMenu}
-                      to="/student-visa"
-                    >
-                      Students
-                    </NavLink>
-                  </p>
-                  <hr className="mt-0 mb-3" /> */}
 
                   <Button block onClick={this.props.logOut} color='danger'>
                     Logout
@@ -205,7 +251,7 @@ class AdminLayout extends Component<{
         </div>
       </Section>
     ) : (
-      <Redirect to='/auth/login' />
+      <Redirect to={`${process.env.PUBLIC_URL}/auth/login`} />
     )
   }
 }

@@ -1,14 +1,6 @@
 const { mailer } = require('../config/mailer.js')
 
-const sendMail = (data, callback) =>
-  mailer.sendMail(data, (err, res) => {
-    if (err) {
-      console.log(err)
-      return false
-    }
-    callback(res)
-    console.log('email sent')
-  })
+const sendMail = (data, callback) => mailer.sendMail(data, callback)
 
 const successEmailTemplate = (immigrant, type = '') => {
     return `

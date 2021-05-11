@@ -59,6 +59,10 @@ const GeneralImmigrant = sequelize.define('general_immigrant', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  client_status: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 })
 
 module.exports = GeneralImmigrant

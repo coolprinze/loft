@@ -1,10 +1,5 @@
 const sequelize = require('../config/db.js')
 const Sequelize = require('sequelize')
-const {
-  successEmailTemplate,
-  reviewedEmailTemplate,
-  sendMail,
-} = require('../mail/index.js')
 
 const { DataTypes } = Sequelize
 

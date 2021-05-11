@@ -23,7 +23,7 @@ export const fundsAction = (
     id: number
   }[]
 ) =>
-  funds.map((fund: { min: number; max: number; type: string; id: number }) => ({
+  funds.sort((a, b) => a.min - b.min).map((fund) => ({
     name:
       fund.min === 0
         ? `Less than ${formatNum(fund.max)}`

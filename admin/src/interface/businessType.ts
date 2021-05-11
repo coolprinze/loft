@@ -1,7 +1,7 @@
 import { countryType, fundType, qualificationType, spouseType } from '.'
 
 export type businessType = {
-  id?: number
+  id: number
   first_name: string
   last_name: string
   email: string
@@ -13,6 +13,7 @@ export type businessType = {
   createdAt: string
   updatedAt: string
   managerial_experience: boolean
+  client_status: boolean
   investRange: fundType
   networthRange: fundType
   residenceCountry: countryType

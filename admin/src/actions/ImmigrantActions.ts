@@ -15,6 +15,10 @@ import {
   IMMIGRANT_LIST_SUCCESS,
   SEARCH_IMMIGRANT_FAILED,
   SEARCH_IMMIGRANT_REQUEST,
+  UPDATE_IMMIGRANT_REQUEST,
+  UPDATE_GENERAL_SUCCESS,
+  UPDATE_IMMIGRANT_FAILED,
+  UPDATE_BUSINESS_SUCCESS,
 } from '../constants/immigrantsConstants'
 import { handleErr } from '../helpers'
 
@@ -91,6 +95,45 @@ export const getBusinessImmigrants = () => async (
   }
 }
 
+export const updateImmigrant = (
+  id: number,
+  data: any,
+  type: collectionType
+) => async (dispatch: Dispatch, getState: any) => {
+  try {
+    dispatch({
+      type: UPDATE_IMMIGRANT_REQUEST,
+    })
+    const {
+      auth: { token },
+    } = getState()
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    const res = await Axios.patch(
+      `${URL}/immigrants/${type}/${id}`,
+      data,
+      config
+    )
+    const dispatchType =
+      type === 'businesses' ? UPDATE_BUSINESS_SUCCESS : UPDATE_GENERAL_SUCCESS
+    dispatch({
+      type: dispatchType,
+      payload: res.data,
+    })
+    return res.data
+  } catch (error) {
+    dispatch({
+      type: UPDATE_IMMIGRANT_FAILED,
+      payload: handleErr(error),
+    })
+    toast(handleErr(error))
+  }
+}
+
 export const getGeneralImmigrants = () => async (
   dispatch: Dispatch,
   getState: any
@@ -150,7 +193,7 @@ export const searchDb = (collection: collectionType, query: object) => async (
     let param = '?'
 
     for (const [key, value] of Object.entries(query)) {
-      if (value) param += `${key}=${value}&`
+      if (value.toString()) param += `${key}=${value}&`
     }
 
     const res = await Axios.get(
@@ -162,6 +205,8 @@ export const searchDb = (collection: collectionType, query: object) => async (
       type:
         collection === 'businesses'
           ? BUSINESS_LIST_SUCCESS
+          : collection === 'generals'
+          ? GENERAL_LIST_SUCCESS
           : IMMIGRANT_LIST_SUCCESS,
       payload: res.data,
     })

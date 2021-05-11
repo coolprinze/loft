@@ -57,8 +57,8 @@ const spouseEducatedOptions = [
 
 const initialState = {
   isOpen: 1,
-    educated: null,
-    spouseEducated: null,
+  educated: null,
+  spouseEducated: null,
   userData: {
     first_name: '',
     last_name: '',
@@ -101,8 +101,8 @@ class Business2 extends Component<{
   disableKeyboard = () => (document.onkeypress = () => false)
   validateStep = (val: number) => {
     let {
-        educated,
-        spouseEducated,
+      educated,
+      spouseEducated,
       userData: {
         first_name,
         last_name,
@@ -119,27 +119,30 @@ class Business2 extends Component<{
         managerial_experience,
         qualifications,
 
-        spouse
+        spouse,
       },
+      userData,
     } = this.state
 
     const errors: any = []
 
-
-    const validateQualification = (qualifications: qualification[], type:string='') => {
-      if (type === 's'? spouseEducated :educated)
+    const validateQualification = (
+      qualifications: qualification[],
+      type: string = ''
+    ) => {
+      if (type === 's' ? spouseEducated : educated)
         qualifications.map((qualification, index) => {
-        let { from, to, school, city, degreeId, countryId } = qualification
-        errors.push([])
+          let { from, to, school, city, degreeId, countryId } = qualification
+          errors.push([])
 
-        !from && errors[index].push(`${type}from`)
-        !to && errors[index].push(`${type}to`)
-        !school && errors[index].push(`${type}school`)
-        !city && errors[index].push(`${type}city`)
-        !degreeId && errors[index].push(`${type}degree`)
-        !countryId && errors[index].push(`${type}country`)
-        return null
-      })
+          !from && errors[index].push(`${type}from`)
+          !to && errors[index].push(`${type}to`)
+          !school && errors[index].push(`${type}school`)
+          !city && errors[index].push(`${type}city`)
+          !degreeId && errors[index].push(`${type}degree`)
+          !countryId && errors[index].push(`${type}country`)
+          return null
+        })
       else errors.push(`${type}educated`)
 
       return !errors.find((error: any) => error.length) || false
@@ -157,6 +160,18 @@ class Business2 extends Component<{
         !validator.isEmail(email) && errors.push('email')
         !validator.isMobilePhone(phone) && errors.push('phone')
 
+        married !== 'true' &&
+          this.setState({
+            userData: {
+              ...userData,
+              spouse: {
+                country_of_birth: null,
+                dob: undefined,
+                qualifications: [],
+              },
+            },
+          })
+
         return !errors.length || false
       },
       validateStep2 = () => {
@@ -169,23 +184,19 @@ class Business2 extends Component<{
       },
       validateStep4 = () => {
         if (married === 'true') {
-          let {
-            dob,
-            qualifications,
-            country_of_birth
-          } = spouse
-  
-          validateQualification(qualifications ,'s')
+          let { dob, qualifications, country_of_birth } = spouse
+
+          validateQualification(qualifications, 's')
           !country_of_birth && errors.push('country_of_birth')
-          !validator.isNumeric(`${country_of_birth}`) && errors.push('country_of_birth')
+          !validator.isNumeric(`${country_of_birth}`) &&
+            errors.push('country_of_birth')
           !dob && errors.push('sdob')
-  
-        } 
+        }
         return !errors.find((error: any) => error.length) || false
       },
       validateStep3 = () => {
         !managerial_experience && errors.push('managerial_experience')
-        
+
         return validateQualification(qualifications)
       }
 
@@ -202,7 +213,7 @@ class Business2 extends Component<{
             ? married === 'true'
               ? this.setState({ isOpen: 4 })
               : this.setState({ loading: true }, this.onSubmit)
-            : console.log(errors) 
+            : console.log(errors)
           : this.setState({ isOpen: 2 })
         : this.setState({ isOpen: 1 })
     } else if (val === 4) {
@@ -228,8 +239,14 @@ class Business2 extends Component<{
   toggleStep = (val: number) => this.validateStep(val - 1)
 
   onSubmit = () => {
+    let {
+      userData,
+      userData: { married, spouse },
+    } = this.state
 
-    addBusinessImmigrant(this.state.userData)
+    let data = { ...userData, spouse: married === 'true' ? spouse : null }
+
+    addBusinessImmigrant(data)
       .then((res) => {
         this.setState(initialState, () => {
           toast('Your request have been logged')
@@ -247,21 +264,22 @@ class Business2 extends Component<{
 
   onChangeEducated = (e?: any, type: string = '') => {
     if (e.target.value === 'true') {
-      type === 's'?  this.addQualification('s') :this.addQualification()
+      type === 's' ? this.addQualification('s') : this.addQualification()
     } else {
-      const {userData, educated, spouseEducated} = this.state
+      const { userData, educated, spouseEducated } = this.state
       this.setState({
-        userData: type === 's'
-        ? {
-          ...userData,
-          spouse: { ...userData.spouse, qualifications: [] },
-        }
-        :{
-          ...userData,
-          qualifications: [],
-        },
-        educated: type === ''? 'false' : educated,
-        spouseEducated: type === 's'? 'false' : spouseEducated,
+        userData:
+          type === 's'
+            ? {
+                ...userData,
+                spouse: { ...userData.spouse, qualifications: [] },
+              }
+            : {
+                ...userData,
+                qualifications: [],
+              },
+        educated: type === '' ? 'false' : educated,
+        spouseEducated: type === 's' ? 'false' : spouseEducated,
       })
     }
   }
@@ -293,8 +311,8 @@ class Business2 extends Component<{
   /*------ Qualificaton Functions ------*/
   /*------------------------------------*/
   addQualification = (type: string = '') => {
-    const {userData, spouseEducated, educated} = this.state,
-    {qualifications} = type === 's'? userData.spouse :userData
+    const { userData, spouseEducated, educated } = this.state,
+      { qualifications } = type === 's' ? userData.spouse : userData
     const errors: any = []
 
     qualifications.map((qualification, index) => {
@@ -330,27 +348,22 @@ class Business2 extends Component<{
         countryId: null,
       }
       this.setState({
-        userData: type === 's'
-        ?{
-          ...userData,
-          spouse: {
-            ...userData.spouse,
-            qualifications: [
-              ...userData.spouse.qualifications,
-              newQual,
-            ],
-          },
-        }
-        :{
-          ...userData,
-          qualifications: [
-            ...userData.qualifications,
-            newQual,
-          ],
-        },
+        userData:
+          type === 's'
+            ? {
+                ...userData,
+                spouse: {
+                  ...userData.spouse,
+                  qualifications: [...userData.spouse.qualifications, newQual],
+                },
+              }
+            : {
+                ...userData,
+                qualifications: [...userData.qualifications, newQual],
+              },
         errors: [],
-        educated: type === ''? true : educated,
-        spouseEducated: type === 's'? true : spouseEducated,
+        educated: type === '' ? true : educated,
+        spouseEducated: type === 's' ? true : spouseEducated,
       })
     } else {
       this.setState({ loading: false, errors })
@@ -359,42 +372,50 @@ class Business2 extends Component<{
 
   removeQualification = (index: number, type: string = '') => {
     const userData = this.state.userData,
-    {qualifications} = type === 's'? userData.spouse :userData
+      { qualifications } = type === 's' ? userData.spouse : userData
 
     qualifications.splice(index, 1)
 
     this.setState({
-      userData: type === 's'
-      ? {
-        ...userData,
-        spouse: { ...userData.spouse, qualifications },
-      }
-      :{
-        ...userData,
-        qualifications,
-      },
+      userData:
+        type === 's'
+          ? {
+              ...userData,
+              spouse: { ...userData.spouse, qualifications },
+            }
+          : {
+              ...userData,
+              qualifications,
+            },
     })
   }
 
   onChangeQualification = (index: number, e?: any, type: string = '') => {
     const userData = this.state.userData,
-    {qualifications}: {qualifications: qualification[]} = type === 's'? userData.spouse :userData
+      { qualifications }: { qualifications: qualification[] } =
+        type === 's' ? userData.spouse : userData
     qualifications[index] = {
       ...qualifications[index],
       [e.target.name]: e.target.value,
     }
 
     this.setState({
-      userData: type === 's'
-      ?{
-        ...userData,
-        spouse: { ...userData.spouse, qualifications },
-      }
-      :{ ...this.state.userData, qualifications },
+      userData:
+        type === 's'
+          ? {
+              ...userData,
+              spouse: { ...userData.spouse, qualifications },
+            }
+          : { ...this.state.userData, qualifications },
     })
   }
 
-  qualification = (q: qualification, index: number, title: string, type: string = '') => {
+  qualification = (
+    q: qualification,
+    index: number,
+    title: string,
+    type: string = ''
+  ) => {
     const { countries, degrees } = this.props
 
     const { errors } = this.state
@@ -430,10 +451,14 @@ class Business2 extends Component<{
                 autoComplete='off'
                 id={`${type}from`}
                 onChange={(e) =>
-                  this.onChangeQualification(index, {
-                    ...e,
-                    target: { ...e.target, name: 'from' },
-                  }, type)
+                  this.onChangeQualification(
+                    index,
+                    {
+                      ...e,
+                      target: { ...e.target, name: 'from' },
+                    },
+                    type
+                  )
                 }
                 required
               />
@@ -444,7 +469,7 @@ class Business2 extends Component<{
                   style: { type: 'date' },
                   required: true,
                 }}
-                invalid= {this.hasErrors(`${type}to`, errors[index])}
+                invalid={this.hasErrors(`${type}to`, errors[index])}
                 label='To'
                 onFocus={this.disableKeyboard}
                 onBlur={this.enableKeyboard}
@@ -453,10 +478,14 @@ class Business2 extends Component<{
                 name='to'
                 id={`${type}to`}
                 onChange={(e) =>
-                  this.onChangeQualification(index, {
-                    ...e,
-                    target: { ...e.target, name: 'to' },
-                  }, type)
+                  this.onChangeQualification(
+                    index,
+                    {
+                      ...e,
+                      target: { ...e.target, name: 'to' },
+                    },
+                    type
+                  )
                 }
                 required
               />
@@ -506,8 +535,6 @@ class Business2 extends Component<{
       </Col>
     )
   }
-
-
 
   section1 = (isOpen: number) => {
     const {
@@ -667,7 +694,7 @@ class Business2 extends Component<{
                 placeholder='PLEASE SELECT'
                 onSelect={this.onChange}
                 required
-                label='Net Worth (the sum total of all assets such as properties, investments, savings, etc.)'
+                label='Net Worth (the sum total of all assets such as properties, investments, savings, etc.) (CAD)'
               />
             </Col>
             <Col sm={12} className='py-1'>
@@ -680,7 +707,7 @@ class Business2 extends Component<{
                 placeholder='PLEASE SELECT'
                 onSelect={this.onChange}
                 required
-                label='Funds Available to Invest in Canada'
+                label='Funds Available to Invest in Canada (CAD)'
               />
             </Col>
 
@@ -769,7 +796,10 @@ class Business2 extends Component<{
                       )
                   )}
                 </Row>
-                <Button color='secondary' onClick={() => this.addQualification()}>
+                <Button
+                  color='secondary'
+                  onClick={() => this.addQualification()}
+                >
                   Add Another Education or Training Program
                 </Button>
               </CardBody>
@@ -777,7 +807,7 @@ class Business2 extends Component<{
           )) ||
             ''}
           <Row className='mt-2'>
-            <Col className={married === 'true' ?'text-right':''}>
+            <Col className={married === 'true' ? 'text-right' : ''}>
               <Button
                 color='danger'
                 onClick={() => this.validateStep(3)}
@@ -794,14 +824,9 @@ class Business2 extends Component<{
   }
 
   section4 = (isOpen: number) => {
-
     const {
       userData: {
-        spouse: {
-          qualifications,
-          dob,
-          country_of_birth
-        },
+        spouse: { qualifications, dob, country_of_birth },
       },
     } = this.state
 
@@ -840,10 +865,13 @@ class Business2 extends Component<{
                 value={dob}
                 id='sdob'
                 onChange={(e) =>
-                  this.onChange({
-                    ...e,
-                    target: { ...e.target, name: 'dob' },
-                  }, 's')
+                  this.onChange(
+                    {
+                      ...e,
+                      target: { ...e.target, name: 'dob' },
+                    },
+                    's'
+                  )
                 }
                 required
               />
@@ -858,7 +886,7 @@ class Business2 extends Component<{
                 inline
                 required
                 options={spouseEducatedOptions}
-                onSelect={(e:any) => this.onChangeEducated(e, 's')}
+                onSelect={(e: any) => this.onChangeEducated(e, 's')}
               />
             </Col>
           </Row>
@@ -883,7 +911,10 @@ class Business2 extends Component<{
                       )
                   )}
                 </Row>
-                <Button color='secondary' onClick={()=>this.addQualification('s')}>
+                <Button
+                  color='secondary'
+                  onClick={() => this.addQualification('s')}
+                >
                   Add Another Education or Training Program
                 </Button>
               </CardBody>
@@ -909,7 +940,11 @@ class Business2 extends Component<{
   }
 
   render() {
-    const { isOpen, loading, userData:{married} } = this.state
+    const {
+      isOpen,
+      loading,
+      userData: { married },
+    } = this.state
 
     return (
       <MainLayout title='Business' showMenu>

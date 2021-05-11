@@ -3,20 +3,29 @@ import moment from 'moment'
 import React, { Component } from 'react'
 import { CSVLink } from 'react-csv'
 import { connect } from 'react-redux'
-import { Card, Col, Row, Table } from 'reactstrap'
+import { withRouter } from 'react-router'
+import { toast } from 'react-toastify'
+import { Button, Card, Col, Row, Table } from 'reactstrap'
 import {
   collectionType,
   getGeneralImmigrants,
-  searchDb
+  searchDb,
+  updateImmigrant,
 } from '../actions/ImmigrantActions'
-import { DateInputGroup, SelectGroup, TextInputGroup } from '../components/Form'
+import { DateInputGroup, TextInputGroup } from '../components/Form'
 import Loading from '../components/Loading'
-import { _calculateAge } from '../helpers'
+import {
+  experienceToString,
+  laguageToString,
+  qualToString,
+  _calculateAge,
+} from '../helpers'
 import { generalType } from '../interface/generalType'
 
 const data = {
   titles: [
     { title: '', field: 'id' },
+    { title: 'Convert To Client', field: 'client_status' },
     { title: 'Name', field: 'name' },
     { title: 'group', field: 'group' },
     { title: 'Eligible Party', field: 'eligible_party' },
@@ -26,14 +35,26 @@ const data = {
     { title: 'phone', field: 'phone' },
     { title: 'DOB', field: 'dob' },
     { title: 'Married', field: 'Married' },
+    { title: 'Qualifications', field: 'qualifications' },
+    { title: 'Experience', field: 'work_histories' },
+    { title: 'Language Prof', field: 'language_proficiencies' },
+    { title: 'Spouse', field: 'spouse' },
+    { title: 'Children', field: 'children' },
+    { title: 'Criminal Rec?', field: 'criminal_record' },
+    { title: 'Famili in CA?', field: 'family_in_canada' },
+    { title: 'Job Offer?', field: 'job_offer' },
+    { title: 'Medical Condition?', field: 'medical_condition' },
+    { title: 'Comment', field: 'comment' },
     { title: 'Created At', field: 'createdAt' },
   ],
 }
 
 class General extends Component<{
   getGeneralImmigrants: () => AxiosPromise
+  updateImmigrant: (id: number, data: any, type: collectionType) => AxiosPromise
   searchDb: (collection: collectionType, searchParam: object) => AxiosPromise
   generalList: generalType[]
+  title: string
   countries: { name: string; value: number }[]
 }> {
   state = {
@@ -43,12 +64,16 @@ class General extends Component<{
     startDate: '',
     endDate: '',
     sortConfig: { field: null, asc: true },
+    isClients: 0,
   }
 
   async componentDidMount() {
-    this.setState({ loading: true })
+    // @ts-ignore
+    const { id } = this.props.match.params
+    const isClients = id === 'clients' ? 1 : 0
+    this.setState({ loading: true, isClients })
     await this.props
-      .getGeneralImmigrants()
+      .searchDb('generals', { client_status: isClients })
       .then((data) => this.setState({ loading: false, data }))
       .catch((err) => this.setState({ loading: false }))
   }
@@ -93,25 +118,47 @@ class General extends Component<{
   onSearch = () =>
     this.setState({ loading: true }, () =>
       this.props
-        .searchDb('generals', this.state.query)
+        .searchDb('generals', {
+          ...this.state.query,
+          client_status: this.state.isClients,
+        })
         .then((res) => this.setState({ loading: false }))
         .catch((err) => this.setState({ loading: false }))
     )
 
+  updateImmigrant = (id: number) =>
+    this.setState({ loading: true }, () =>
+      this.props
+        .updateImmigrant(id, { client_status: true }, 'generals')
+        .then((res) =>
+          this.setState({ loading: false }, () => {
+            toast('Selected lead is now a client')
+          })
+        )
+        .catch((err) =>
+          this.setState({ loading: false }, () => {
+            toast(err.response.message)
+          })
+        )
+    )
+
   render() {
-    const { generalList } = this.props,
+    const { generalList, title } = this.props,
       {
         loading,
         startDate,
         endDate,
         sortConfig: { asc, field: sortField },
+        isClients,
       } = this.state
     return (
       <div id='requests' className='px-0 w-100 mx-auto'>
         <Loading show={loading} />
         <Row>
           <Col>
-            <h2>General</h2>
+            <h2>
+              {title} {isClients ? 'Clients' : 'Leads'}
+            </h2>
           </Col>
         </Row>
         <Row>
@@ -139,26 +186,55 @@ class General extends Component<{
                 ({
                   first_name,
                   last_name,
-                  email,
                   group,
-                  dob,
                   eligible_party,
-                  phone,
-                  spouse,
-                  createdAt,
-                  residenceCountry,
                   citizenshipCountry,
+                  residenceCountry,
+                  email,
+                  phone,
+                  dob,
+                  qualifications,
+                  work_histories,
+                  language_proficiencies,
+                  spouse,
+                  children,
+                  criminal_record,
+                  family_in_canada,
+                  job_offer,
+                  medical_condition,
+                  comment,
+                  createdAt,
                 }) => ({
                   first_name,
                   last_name,
-                  email,
                   group,
-                  dob,
                   eligible_party,
-                  phone,
-                  married: spouse !== null,
-                  residenceCountry: residenceCountry.name,
                   citizenshipCountry: citizenshipCountry.name,
+                  residenceCountry: residenceCountry.name,
+                  email,
+                  phone,
+                  dob,
+                  married: spouse !== null,
+                  qualifications: qualToString(qualifications),
+                  work_histories: experienceToString(work_histories),
+                  language_proficiencies: laguageToString(
+                    language_proficiencies
+                  ),
+                  spouse: spouse
+                    ? `${_calculateAge(spouse.dob)} years \n| ${qualToString(
+                        spouse.qualifications
+                      )} \n| ${experienceToString(
+                        spouse.work_histories
+                      )} \n| ${laguageToString(
+                        spouse.language_proficiencies
+                      )}  `
+                    : 'NIL',
+                  children,
+                  criminal_record: criminal_record ? 'Yes' : 'No',
+                  family_in_canada: family_in_canada ? 'Yes' : 'No',
+                  job_offer: job_offer ? 'Yes' : 'No',
+                  medical_condition: medical_condition ? 'Yes' : 'No',
+                  comment,
                   createdAt,
                 })
               )}
@@ -243,26 +319,30 @@ class General extends Component<{
           <Table responsive striped bordered>
             <thead>
               <tr>
-                {data.titles.map(({ title, field }, key) => (
-                  <th className='text-capitalize' key={key}>
-                    {title}{' '}
-                    <button
-                      className='d-inline btn btn-link px-0'
-                      onClick={() => this.sortData(field)}
-                    >
-                      <i
-                        className={`fa fa-angle-down mr-0 ${
-                          sortField === field && asc ? 'text-secondary' : ''
-                        }`}
-                      ></i>
-                      <i
-                        className={`fa fa-angle-up mr-0 ${
-                          sortField === field && !asc ? 'text-secondary' : ''
-                        }`}
-                      ></i>
-                    </button>
-                  </th>
-                ))}
+                {data.titles.map(({ title, field }, key) =>
+                  isClients && field === 'client_status' ? (
+                    ''
+                  ) : (
+                    <th className='text-capitalize' key={key}>
+                      {title}{' '}
+                      <button
+                        className='d-inline btn btn-link px-0'
+                        onClick={() => this.sortData(field)}
+                      >
+                        <i
+                          className={`fa fa-angle-down mr-0 ${
+                            sortField === field && asc ? 'text-secondary' : ''
+                          }`}
+                        ></i>
+                        <i
+                          className={`fa fa-angle-up mr-0 ${
+                            sortField === field && !asc ? 'text-secondary' : ''
+                          }`}
+                        ></i>
+                      </button>
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody>
@@ -279,10 +359,35 @@ class General extends Component<{
                   createdAt,
                   residenceCountry,
                   citizenshipCountry,
+                  qualifications,
+                  work_histories,
+                  language_proficiencies,
+                  client_status,
+                  children,
+                  criminal_record,
+                  family_in_canada,
+                  job_offer,
+                  medical_condition,
+                  comment,
+                  id,
                 } = immigrant
                 return (
                   <tr key={key}>
                     <th scope='row'>{key + 1}</th>
+                    {isClients ? (
+                      ''
+                    ) : (
+                      <td>
+                        <Button
+                          color={client_status ? 'secondary' : 'success'}
+                          onClick={() => this.updateImmigrant(id)}
+                          size='sm'
+                          disabled={client_status}
+                        >
+                          {client_status ? 'Converted' : 'Convert to Client'}
+                        </Button>
+                      </td>
+                    )}
                     <td>{`${first_name} ${last_name}`}</td>
                     <td>Group {group}</td>
                     <td>{eligible_party}</td>
@@ -292,7 +397,34 @@ class General extends Component<{
                     <td>{phone}</td>
                     <td>{_calculateAge(dob)}</td>
                     <td>{spouse !== null ? 'true' : 'false'}</td>
-
+                    <td>{qualToString(qualifications)}</td>
+                    <td>{experienceToString(work_histories)}</td>
+                    <td>{laguageToString(language_proficiencies)}</td>
+                    <td>
+                      {spouse ? (
+                        <>
+                          <strong>Age:</strong>{' '}
+                          {`${_calculateAge(spouse.dob)} years`}
+                          <br />
+                          <strong>Quals:</strong>{' '}
+                          {qualToString(spouse.qualifications)}
+                          <br />
+                          <strong>Exp's:</strong>{' '}
+                          {experienceToString(spouse.work_histories)}
+                          <br />
+                          <strong>Lang's:</strong>{' '}
+                          {laguageToString(spouse.language_proficiencies)}
+                        </>
+                      ) : (
+                        'NIL'
+                      )}
+                    </td>
+                    <td>{children}</td>
+                    <td>{criminal_record ? 'Yes' : 'No'}</td>
+                    <td>{family_in_canada ? 'Yes' : 'No'}</td>
+                    <td>{job_offer ? 'Yes' : 'No'}</td>
+                    <td>{medical_condition ? 'Yes' : 'No'}</td>
+                    <td>{comment}</td>
                     <td>{moment(createdAt).format('L | HH:mm')}</td>
                   </tr>
                 )
@@ -314,7 +446,11 @@ const mapStateToProps = ({ generalList }: { generalList: [] }) => ({
   ...generalList,
 })
 
-export default connect(mapStateToProps, { getGeneralImmigrants, searchDb })(
+export default connect(mapStateToProps, {
+  getGeneralImmigrants,
+  searchDb,
+  updateImmigrant,
+})(
   //@ts-ignore
-  General
+  withRouter(General)
 )

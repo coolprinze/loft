@@ -12,7 +12,11 @@ import {
 } from '../components/Form'
 import Loading from '../components/Loading'
 import MainLayout from '../layouts/MainLayout'
-import { qualification, experience, languageProficiency } from '../types/business'
+import {
+  qualification,
+  experience,
+  languageProficiency,
+} from '../types/business'
 
 export const maritalOptions = [
   {
@@ -150,7 +154,7 @@ const initialState = {
     children: '',
     phone: '',
     qualifications: [],
-    experiences: [],
+    work_histories: [],
     job_offer: null,
     family_in_canada: null,
     criminal_record: null,
@@ -159,19 +163,19 @@ const initialState = {
     language_proficiencies: [
       {
         languageId: null,
-        level: ''
-      }
+        level: '',
+      },
     ],
     spouse: {
       dob: undefined,
-      experiences: [],
+      work_histories: [],
       qualifications: [],
       language_proficiencies: [
         {
           languageId: null,
-          level: ''
-        }
-      ]
+          level: '',
+        },
+      ],
     },
   },
   experienced: null,
@@ -196,44 +200,50 @@ class General extends Component<{
 
   componentDidMount() {}
 
-  hasErrors = (key: string, errors = this.state.errors) =>
-    errors.includes(key)
+  hasErrors = (key: string, errors = this.state.errors) => errors.includes(key)
 
   toggleStep = (val: number) => this.validateStep(val - 1)
 
   validateStep = (val: number) => {
-
-    const validateQualification = (qualifications: qualification[], type:string='') => {
-      if (type === 's'? spouseEducated :educated)
+    const validateQualification = (
+      qualifications: qualification[],
+      type: string = ''
+    ) => {
+      if (type === 's' ? spouseEducated : educated)
         qualifications.map((qualification, index) => {
-        let { from, to, school, city, degreeId, countryId } = qualification
-        errors.push([])
+          let { from, to, school, city, degreeId, countryId } = qualification
+          errors.push([])
 
-        !from && errors[index].push(`${type}from`)
-        !to && errors[index].push(`${type}to`)
-        !school && errors[index].push(`${type}school`)
-        !city && errors[index].push(`${type}city`)
-        !degreeId && errors[index].push(`${type}degree`)
-        !countryId && errors[index].push(`${type}country`)
-        return null
-      })
+          !from && errors[index].push(`${type}from`)
+          !to && errors[index].push(`${type}to`)
+          !school && errors[index].push(`${type}school`)
+          !city && errors[index].push(`${type}city`)
+          !degreeId && errors[index].push(`${type}degree`)
+          !countryId && errors[index].push(`${type}country`)
+          return null
+        })
       else errors.push(`${type}educated`)
 
       return !errors.find((error: any) => error.length) || false
     }
 
-    const validateExperience = (experiences: experience[], type:string='') => {
-      if (type === 's'? spouseExperienced :experienced)
-        experiences.map((experience, index) => {
-        let { from, to, employer, city, occupationId, countryId } = experience
-        errors.push([])
-  
-        !from && errors[index].push(`${type}from`)
-        !to && errors[index].push(`${type}to`)
-        !employer && errors[index].push(`${type}employer`)
-        !city && errors[index].push(`${type}city`)
-        !validator.isNumeric(`${occupationId}`) && errors[index].push(`${type}occupationId`)
-        !validator.isNumeric(`${countryId}`) && errors[index].push(`${type}countryId`)
+    const validateExperience = (
+      work_histories: experience[],
+      type: string = ''
+    ) => {
+      if (type === 's' ? spouseExperienced : experienced)
+        work_histories.map((experience, index) => {
+          let { from, to, employer, city, occupationId, countryId } = experience
+          errors.push([])
+
+          !from && errors[index].push(`${type}from`)
+          !to && errors[index].push(`${type}to`)
+          !employer && errors[index].push(`${type}employer`)
+          !city && errors[index].push(`${type}city`)
+          !validator.isNumeric(`${occupationId}`) &&
+            errors[index].push(`${type}occupationId`)
+          !validator.isNumeric(`${countryId}`) &&
+            errors[index].push(`${type}countryId`)
           return null
         })
       else errors.push(`${type}experienced`)
@@ -241,15 +251,18 @@ class General extends Component<{
       return !errors.find((error: any) => error.length) || false
     }
 
-    const validateLanguage = (languages: languageProficiency[], type:string='') => {
-        
+    const validateLanguage = (
+      languages: languageProficiency[],
+      type: string = ''
+    ) => {
       languages.map((language, index) => {
         let { languageId, level } = language
-        
+
         errors.push([])
 
         !level && errors[index].push(`${type}level`)
-        !validator.isNumeric(`${languageId}`) && errors[index].push(`${type}languageId`)
+        !validator.isNumeric(`${languageId}`) &&
+          errors[index].push(`${type}languageId`)
         return null
       })
 
@@ -267,7 +280,7 @@ class General extends Component<{
         children,
         phone: phn,
         qualifications,
-        experiences,
+        work_histories,
         job_offer,
         family_in_canada,
         criminal_record,
@@ -298,17 +311,14 @@ class General extends Component<{
         this.setState({ isOpen: 2 })
       }
     } else if (val === 2) {
-      
       if (validateQualification(qualifications)) {
         this.setState({ isOpen: 3, errors: [] })
       }
     } else if (val === 3) {
-
-      if (validateExperience(experiences)) {
+      if (validateExperience(work_histories)) {
         this.setState({ isOpen: 4, errors: [] })
       }
     } else if (val === 4) {
-
       if (validateLanguage(language_proficiencies)) {
         this.setState({ isOpen: married === 'true' ? 5 : 6 })
       }
@@ -318,17 +328,16 @@ class General extends Component<{
           dob,
 
           qualifications,
-          experiences,
-          language_proficiencies
+          work_histories,
+          language_proficiencies,
         } = spouse
 
-        validateExperience(experiences, 's')
-          
-        validateQualification(qualifications ,'s')
+        validateExperience(work_histories, 's')
+
+        validateQualification(qualifications, 's')
 
         validateLanguage(language_proficiencies, 's')
         !dob && errors.push('sdob')
-
       } else {
         this.validateStep(4)
         return
@@ -337,7 +346,6 @@ class General extends Component<{
       if (!errors.find((error: any) => error.length)) {
         this.setState({ isOpen: 6, errors: [] })
       }
-
     } else if (val === 6) {
       !job_offer && errors.push('job_offer')
       !family_in_canada && errors.push('family_in_canada')
@@ -353,9 +361,15 @@ class General extends Component<{
     this.setState({ errors })
   }
 
-  onSubmit = () =>{
-    
-    addGeneralImmigrant(this.state.userData)
+  onSubmit = () => {
+    let {
+      userData,
+      userData: { married, spouse },
+    } = this.state
+
+    let data = { ...userData, spouse: married === 'true' ? spouse : null }
+
+    addGeneralImmigrant(data)
       .then((res) => {
         this.setState(initialState, () => {
           toast('Your request have been logged')
@@ -369,7 +383,7 @@ class General extends Component<{
           )
         )
       )
-}
+  }
 
   onChange = (e?: any, type: string = '') => {
     const userData = this.state.userData
@@ -383,25 +397,24 @@ class General extends Component<{
           },
         },
       })
+    else if (e.target.name === 'married')
+      this.setState({
+        userData: {
+          ...userData,
+          [e.target.name]: ['age', 'children'].includes(e.target.name)
+            ? parseInt(e.target.value)
+            : e.target.value,
+        },
+      })
     else
-      if (e.target.name === 'married')
-        this.setState({
-          userData: {
-            ...userData,
-            [e.target.name]: ['age', 'children'].includes(e.target.name)
-              ? parseInt(e.target.value)
-              : e.target.value,
-          },
-        })
-      else
-        this.setState({
-          userData: {
-            ...userData,
-            [e.target.name]: ['age', 'children'].includes(e.target.name)
-              ? parseInt(e.target.value)
-              : e.target.value,
-          },
-        })
+      this.setState({
+        userData: {
+          ...userData,
+          [e.target.name]: ['age', 'children'].includes(e.target.name)
+            ? parseInt(e.target.value)
+            : e.target.value,
+        },
+      })
   }
 
   /*------------------------------------*/
@@ -409,7 +422,7 @@ class General extends Component<{
   /*------------------------------------*/
   addQualification = (type: string = '') => {
     const userData = this.state.userData,
-    {qualifications} = type === 's'? userData.spouse :userData
+      { qualifications } = type === 's' ? userData.spouse : userData
     const errors: any = []
 
     qualifications.map((qualification, index) => {
@@ -445,27 +458,22 @@ class General extends Component<{
         countryId: null,
       }
       this.setState({
-        userData: type === 's'
-        ?{
-          ...userData,
-          spouse: {
-            ...userData.spouse,
-            qualifications: [
-              ...userData.spouse.qualifications,
-              newQual,
-            ],
-          },
-        }
-        :{
-          ...userData,
-          qualifications: [
-            ...userData.qualifications,
-            newQual,
-          ],
-        },
+        userData:
+          type === 's'
+            ? {
+                ...userData,
+                spouse: {
+                  ...userData.spouse,
+                  qualifications: [...userData.spouse.qualifications, newQual],
+                },
+              }
+            : {
+                ...userData,
+                qualifications: [...userData.qualifications, newQual],
+              },
         errors: [],
-        educated: type === ''? 'true' : this.state.educated,
-        spouseEducated: type === 's'? 'true' : this.state.spouseEducated,
+        educated: type === '' ? 'true' : this.state.educated,
+        spouseEducated: type === 's' ? 'true' : this.state.spouseEducated,
       })
     } else {
       this.setState({ loading: false, errors })
@@ -474,63 +482,72 @@ class General extends Component<{
 
   removeQualification = (index: number, type: string = '') => {
     const userData = this.state.userData,
-    {qualifications} = type === 's'? userData.spouse :userData
+      { qualifications } = type === 's' ? userData.spouse : userData
 
     qualifications.splice(index, 1)
 
     this.setState({
-      userData: type === 's'
-      ? {
-        ...userData,
-        spouse: { ...userData.spouse, qualifications },
-      }
-      :{
-        ...userData,
-        qualifications,
-      },
+      userData:
+        type === 's'
+          ? {
+              ...userData,
+              spouse: { ...userData.spouse, qualifications },
+            }
+          : {
+              ...userData,
+              qualifications,
+            },
     })
   }
 
   onChangeQualification = (index: number, e?: any, type: string = '') => {
     const userData = this.state.userData,
-    {qualifications}: {qualifications: qualification[]} = type === 's'? userData.spouse :userData
+      { qualifications }: { qualifications: qualification[] } =
+        type === 's' ? userData.spouse : userData
     qualifications[index] = {
       ...qualifications[index],
       [e.target.name]: e.target.value,
     }
 
     this.setState({
-      userData: type === 's'
-      ?{
-        ...userData,
-        spouse: { ...userData.spouse, qualifications },
-      }
-      :{ ...this.state.userData, qualifications },
+      userData:
+        type === 's'
+          ? {
+              ...userData,
+              spouse: { ...userData.spouse, qualifications },
+            }
+          : { ...this.state.userData, qualifications },
     })
   }
 
   onChangeEducated = (e?: any, type: string = '') => {
     if (e.target.value === 'true') {
-      type === 's'?  this.addQualification('s') :this.addQualification()
+      type === 's' ? this.addQualification('s') : this.addQualification()
     } else {
-      const {userData} = this.state
+      const { userData } = this.state
       this.setState({
-        userData: type === 's'
-        ? {
-          ...userData,
-          spouse: { ...userData.spouse, qualifications: [] },
-        }
-        :{
-          ...userData,
-          qualifications: [],
-        },
-        educated: type === ''? 'false' : this.state.educated,
-        spouseEducated: type === 's'? 'false' : this.state.spouseEducated,
+        userData:
+          type === 's'
+            ? {
+                ...userData,
+                spouse: { ...userData.spouse, qualifications: [] },
+              }
+            : {
+                ...userData,
+                qualifications: [],
+              },
+        educated: type === '' ? 'false' : this.state.educated,
+        spouseEducated: type === 's' ? 'false' : this.state.spouseEducated,
       })
     }
   }
 
-  qualification = (q: qualification, index: number, title: string, type: string = '') => {
+  qualification = (
+    q: qualification,
+    index: number,
+    title: string,
+    type: string = ''
+  ) => {
     const { countries, degrees } = this.props
 
     const { errors } = this.state
@@ -566,10 +583,14 @@ class General extends Component<{
                 autoComplete='off'
                 id={`${type}from`}
                 onChange={(e) =>
-                  this.onChangeQualification(index, {
-                    ...e,
-                    target: { ...e.target, name: 'from' },
-                  }, type)
+                  this.onChangeQualification(
+                    index,
+                    {
+                      ...e,
+                      target: { ...e.target, name: 'from' },
+                    },
+                    type
+                  )
                 }
                 required
               />
@@ -580,7 +601,7 @@ class General extends Component<{
                   style: { type: 'date' },
                   required: true,
                 }}
-                invalid= {this.hasErrors(`${type}to`, errors[index])}
+                invalid={this.hasErrors(`${type}to`, errors[index])}
                 label='To'
                 onFocus={this.disableKeyboard}
                 onBlur={this.enableKeyboard}
@@ -589,10 +610,14 @@ class General extends Component<{
                 name='to'
                 id={`${type}to`}
                 onChange={(e) =>
-                  this.onChangeQualification(index, {
-                    ...e,
-                    target: { ...e.target, name: 'to' },
-                  }, type)
+                  this.onChangeQualification(
+                    index,
+                    {
+                      ...e,
+                      target: { ...e.target, name: 'to' },
+                    },
+                    type
+                  )
                 }
                 required
               />
@@ -647,13 +672,14 @@ class General extends Component<{
   /*------- Experience Functions -------*/
   /*------------------------------------*/
   addExperience = (type: string = '') => {
-    let experiences = type === 's' 
-    ? this.state.userData.spouse.experiences 
-    : this.state.userData.experiences
+    let work_histories =
+      type === 's'
+        ? this.state.userData.spouse.work_histories
+        : this.state.userData.work_histories
 
     const errors: any = []
 
-    experiences.map((experience, index) => {
+    work_histories.map((experience, index) => {
       let { from, to, employer, city, occupationId, countryId } = experience
       errors.push([])
 
@@ -661,43 +687,45 @@ class General extends Component<{
       !to && errors[index].push(`${type}to`)
       !employer && errors[index].push(`${type}employer`)
       !city && errors[index].push(`${type}city`)
-      !validator.isNumeric(`${occupationId}`) && errors[index].push(`${type}occupationId`)
-      !validator.isNumeric(`${countryId}`) && errors[index].push(`${type}countryId`)
+      !validator.isNumeric(`${occupationId}`) &&
+        errors[index].push(`${type}occupationId`)
+      !validator.isNumeric(`${countryId}`) &&
+        errors[index].push(`${type}countryId`)
       return null
     })
-
 
     const userData = this.state.userData
     if (!errors.find((error: any) => error.length)) {
       this.setState({
-        userData: type === 's' 
-        ? {
-          ...userData,
-          spouse: {
-            ...userData.spouse,
-            experiences: [
-              ...userData.spouse.experiences,
-              {
-                duration: null,
-                job: '',
-                type: '',
-                location: '',
+        userData:
+          type === 's'
+            ? {
+                ...userData,
+                spouse: {
+                  ...userData.spouse,
+                  work_histories: [
+                    ...userData.spouse.work_histories,
+                    {
+                      duration: null,
+                      job: '',
+                      type: '',
+                      location: '',
+                    },
+                  ],
+                },
+              }
+            : {
+                ...this.state.userData,
+                work_histories: [
+                  ...this.state.userData.work_histories,
+                  {
+                    duration: null,
+                    job: '',
+                    type: '',
+                    location: '',
+                  },
+                ],
               },
-            ],
-          },
-        }
-        :{
-          ...this.state.userData,
-          experiences: [
-            ...this.state.userData.experiences,
-            {
-              duration: null,
-              job: '',
-              type: '',
-              location: '',
-            },
-          ],
-        },
         errors: [],
         experienced: type === '',
         spouseExperienced: type === 's',
@@ -708,63 +736,70 @@ class General extends Component<{
   }
 
   removeExperience = (index: number, type: string = '') => {
-    let experiences = type === 's' ? this.state.userData.spouse.experiences : this.state.userData.experiences
+    let work_histories =
+      type === 's'
+        ? this.state.userData.spouse.work_histories
+        : this.state.userData.work_histories
 
-    experiences.splice(index, 1)
+    work_histories.splice(index, 1)
 
     const userData = this.state.userData
 
     this.setState({
-      userData: type === 's'
-      ? { ...userData, spouse: { ...userData.spouse, experiences } }
-      : { ...userData, experiences }
+      userData:
+        type === 's'
+          ? { ...userData, spouse: { ...userData.spouse, work_histories } }
+          : { ...userData, work_histories },
     })
   }
 
   onChangeExperience = (index: number, e?: any, type: string = '') => {
-    let experiences: {}[] = type === 's' 
-    ? this.state.userData.spouse.experiences
-    : this.state.userData.experiences
+    let work_histories: {}[] =
+      type === 's'
+        ? this.state.userData.spouse.work_histories
+        : this.state.userData.work_histories
 
-    experiences[index] = {
-      ...experiences[index],
+    work_histories[index] = {
+      ...work_histories[index],
       [e.target.name]: e.target.value,
     }
 
     const userData = this.state.userData
 
     this.setState({
-      userData: type === 's'
-      ? { ...userData, spouse: { ...userData.spouse, experiences } }
-      : { ...userData, experiences }
+      userData:
+        type === 's'
+          ? { ...userData, spouse: { ...userData.spouse, work_histories } }
+          : { ...userData, work_histories },
     })
   }
 
   onChangeExperienced = (e?: any, type: string = '') => {
     this.onChange(e, type)
-    if (e.target.value === 'true') 
-      this.addExperience(type)
-     else {
+    if (e.target.value === 'true') this.addExperience(type)
+    else {
       this.setState({
-        userData: type === 's'
-        ?{
-          ...this.state.userData,
-          spouse: {
-            ...this.state.userData.spouse,
-            experiences: [],
-          },
-        }
-        :{
-          ...this.state.userData,
-          experiences: [],
-        },
-        experienced: type === ''? 'false' : this.state.experienced,
-        spouseExperienced: type === 's'? 'false' : this.state.spouseExperienced,
+        userData:
+          type === 's'
+            ? {
+                ...this.state.userData,
+                spouse: {
+                  ...this.state.userData.spouse,
+                  work_histories: [],
+                },
+              }
+            : {
+                ...this.state.userData,
+                work_histories: [],
+              },
+        experienced: type === '' ? 'false' : this.state.experienced,
+        spouseExperienced:
+          type === 's' ? 'false' : this.state.spouseExperienced,
       })
     }
   }
 
-  experience = (data: experience,  index: number,  title: string,   type = '') => {
+  experience = (data: experience, index: number, title: string, type = '') => {
     const { countries, occupations: jobs } = this.props
     const { errors } = this.state
 
@@ -783,7 +818,6 @@ class General extends Component<{
             </Button>
           </h5>
 
-
           <Row className='mx-0'>
             <Col xs={6} className='py-1 p-0 pr-1'>
               <DateInputGroup
@@ -801,10 +835,14 @@ class General extends Component<{
                 autoComplete='off'
                 id={`${type}from`}
                 onChange={(e) =>
-                  this.onChangeExperience(index, {
-                    ...e,
-                    target: { ...e.target, name: `from` },
-                  }, type)
+                  this.onChangeExperience(
+                    index,
+                    {
+                      ...e,
+                      target: { ...e.target, name: `from` },
+                    },
+                    type
+                  )
                 }
                 required
               />
@@ -815,7 +853,7 @@ class General extends Component<{
                   style: { type: 'date' },
                   required: true,
                 }}
-                invalid= {this.hasErrors(`${type}to`, errors[index])}
+                invalid={this.hasErrors(`${type}to`, errors[index])}
                 label='To'
                 onFocus={this.disableKeyboard}
                 onBlur={this.enableKeyboard}
@@ -824,10 +862,14 @@ class General extends Component<{
                 name={`to`}
                 id={`${type}to`}
                 onChange={(e) =>
-                  this.onChangeExperience(index, {
-                    ...e,
-                    target: { ...e.target, name: `to` },
-                  }, type)
+                  this.onChangeExperience(
+                    index,
+                    {
+                      ...e,
+                      target: { ...e.target, name: `to` },
+                    },
+                    type
+                  )
                 }
                 required
               />
@@ -882,51 +924,48 @@ class General extends Component<{
     )
   }
 
-
   /*------------------------------------*/
   /*-------- Language Functions --------*/
   /*------------------------------------*/
   addLanguage = (type: string = '') => {
-
-    const {userData} = this.state, 
-    {language_proficiencies} = type === 's' 
-    ? userData.spouse 
-    : userData,
-    newLanguage = { languageId: null, level: '' }
+    const { userData } = this.state,
+      { language_proficiencies } = type === 's' ? userData.spouse : userData,
+      newLanguage = { languageId: null, level: '' }
 
     const errors: any = []
 
     language_proficiencies.map((language, index) => {
       let { languageId, level } = language
-      
+
       errors.push([])
 
       !level && errors[index].push(`${type}level`)
-      !validator.isNumeric(`${languageId}`) && errors[index].push(`${type}languageId`)
+      !validator.isNumeric(`${languageId}`) &&
+        errors[index].push(`${type}languageId`)
       return null
     })
 
-
     if (!errors.find((error: any) => error.length)) {
       this.setState({
-        userData: type === 's' 
-        ? {
-          ...userData,
-          spouse: {
-            ...userData.spouse,
-            language_proficiencies: [
-              ...userData.spouse.language_proficiencies,
-              newLanguage
-            ],
-          },
-        }
-        :{
-          ...userData,
-          language_proficiencies: [
-            ...userData.language_proficiencies,
-            newLanguage,
-          ],
-        },
+        userData:
+          type === 's'
+            ? {
+                ...userData,
+                spouse: {
+                  ...userData.spouse,
+                  language_proficiencies: [
+                    ...userData.spouse.language_proficiencies,
+                    newLanguage,
+                  ],
+                },
+              }
+            : {
+                ...userData,
+                language_proficiencies: [
+                  ...userData.language_proficiencies,
+                  newLanguage,
+                ],
+              },
         errors: [],
       })
     } else {
@@ -934,24 +973,25 @@ class General extends Component<{
     }
   }
 
-
   removeLanguage = (index: number, type: string = '') => {
-    const {userData} = this.state, 
-    {language_proficiencies} = type === 's' 
-    ? userData.spouse 
-    : userData
+    const { userData } = this.state,
+      { language_proficiencies } = type === 's' ? userData.spouse : userData
     language_proficiencies.splice(index, 1)
 
     this.setState({
-      userData: type === 's'
-      ? { ...userData, spouse: { ...userData.spouse, language_proficiencies } }
-      : { ...userData, language_proficiencies }
+      userData:
+        type === 's'
+          ? {
+              ...userData,
+              spouse: { ...userData.spouse, language_proficiencies },
+            }
+          : { ...userData, language_proficiencies },
     })
   }
 
   onChangeLanguage = (index: number, e?: any, type: string = '') => {
-    const {userData} = this.state, 
-    {language_proficiencies} = type === 's'? userData.spouse : userData
+    const { userData } = this.state,
+      { language_proficiencies } = type === 's' ? userData.spouse : userData
 
     language_proficiencies[index] = {
       ...language_proficiencies[index],
@@ -959,27 +999,39 @@ class General extends Component<{
     }
 
     this.setState({
-      userData: type === 's'
-      ? { ...userData, spouse: { ...userData.spouse, language_proficiencies } }
-      : { ...userData, language_proficiencies }
+      userData:
+        type === 's'
+          ? {
+              ...userData,
+              spouse: { ...userData.spouse, language_proficiencies },
+            }
+          : { ...userData, language_proficiencies },
     })
   }
 
-  language = ({level, languageId}: languageProficiency, index: number, type = '') => {
+  language = (
+    { level, languageId }: languageProficiency,
+    index: number,
+    type = ''
+  ) => {
     const { languages } = this.props
     const { errors, userData } = this.state
 
-    const selectedProf = (type === 's'?userData.spouse.language_proficiencies:userData.language_proficiencies),
-    availableOption = languages.map(
-      lang => selectedProf.some(
-        _lang => _lang.languageId == lang.value  
-        )? {...lang, disabled: true} : lang)
+    const selectedProf =
+        type === 's'
+          ? userData.spouse.language_proficiencies
+          : userData.language_proficiencies,
+      availableOption = languages.map((lang) =>
+        selectedProf.some((_lang) => _lang.languageId == lang.value)
+          ? { ...lang, disabled: true }
+          : lang
+      )
 
     return (
       <Col sm={6} className='py-3'>
         <div className='p-2 bg-light'>
           <h5>
-            <strong>Language {index+1}</strong>
+            <strong>Language {index + 1}</strong>
             <Button
               size='sm'
               outline
@@ -990,9 +1042,8 @@ class General extends Component<{
             </Button>
           </h5>
 
-
           <Row className='mx-0'>
-            <Col sm={6} className="px-1">
+            <Col sm={6} className='px-1'>
               <SelectGroup
                 invalid={this.hasErrors(`${type}languageId`, errors[index])}
                 id={`${type}languageId`}
@@ -1000,12 +1051,12 @@ class General extends Component<{
                 value={languageId}
                 options={availableOption}
                 placeholder='PLEASE SELECT'
-                onSelect={(e)=>this.onChangeLanguage(index, e, type)}
+                onSelect={(e) => this.onChangeLanguage(index, e, type)}
                 required
-                label={index? 'Known language' : 'First official language'}
+                label={index ? 'Known language' : 'First official language'}
               />
             </Col>
-            <Col sm={6} className="px-1">
+            <Col sm={6} className='px-1'>
               <SelectGroup
                 invalid={this.hasErrors(`${type}level`, errors[index])}
                 id={`${type}level`}
@@ -1013,12 +1064,11 @@ class General extends Component<{
                 value={level}
                 options={proficiencies}
                 placeholder='PLEASE SELECT'
-                onSelect={(e)=>this.onChangeLanguage(index, e, type)}
+                onSelect={(e) => this.onChangeLanguage(index, e, type)}
                 required
                 label='Proficiency'
               />
             </Col>
-          
           </Row>
         </div>
       </Col>
@@ -1229,7 +1279,10 @@ class General extends Component<{
                       )
                   )}
                 </Row>
-                <Button color='secondary' onClick={() => this.addQualification()}>
+                <Button
+                  color='secondary'
+                  onClick={() => this.addQualification()}
+                >
                   Add Another Education or Training Program
                 </Button>
               </CardBody>
@@ -1255,7 +1308,7 @@ class General extends Component<{
 
   section3 = (isOpen: number) => {
     const {
-      userData: { experiences = [] },
+      userData: { work_histories = [] },
     } = this.state
 
     return (
@@ -1283,15 +1336,23 @@ class General extends Component<{
               />
             </Col>
           </Row>
-          {(experiences.length && (
+          {(work_histories.length && (
             <Card>
               <CardBody className='bg-muted'>
                 <Row className='row-eq-height'>
-                  {this.experience(experiences[0],0,'Current (or most recent) Job:')}
-                  {experiences.map(
+                  {this.experience(
+                    work_histories[0],
+                    0,
+                    'Current (or most recent) Job:'
+                  )}
+                  {work_histories.map(
                     (experience, index) =>
                       index !== 0 &&
-                      this.experience(experience, index, 'Current (or most recent) Job:')
+                      this.experience(
+                        experience,
+                        index,
+                        'Current (or most recent) Job:'
+                      )
                   )}
                 </Row>
                 <Button color='secondary' onClick={() => this.addExperience()}>
@@ -1334,9 +1395,8 @@ class General extends Component<{
         </Link>
         <Collapse isOpen={isOpen === 4}>
           <Row>
-            {language_proficiencies.map(
-              (language, index) =>
-                this.language(language, index)
+            {language_proficiencies.map((language, index) =>
+              this.language(language, index)
             )}
           </Row>
           <Button color='secondary' onClick={() => this.addLanguage()}>
@@ -1361,15 +1421,9 @@ class General extends Component<{
   }
 
   section5 = (isOpen: number) => {
-
     const {
       userData: {
-        spouse: {
-          language_proficiencies,
-          qualifications,
-          experiences,
-          dob,
-        },
+        spouse: { language_proficiencies, qualifications, work_histories, dob },
       },
     } = this.state
 
@@ -1395,10 +1449,13 @@ class General extends Component<{
                 value={dob}
                 id='sdob'
                 onChange={(e) =>
-                  this.onChange({
-                    ...e,
-                    target: { ...e.target, name: 'dob' },
-                  }, 's')
+                  this.onChange(
+                    {
+                      ...e,
+                      target: { ...e.target, name: 'dob' },
+                    },
+                    's'
+                  )
                 }
                 required
               />
@@ -1413,7 +1470,7 @@ class General extends Component<{
                 inline
                 required
                 options={spouseEducatedOptions}
-                onSelect={(e:any) => this.onChangeEducated(e, 's')}
+                onSelect={(e: any) => this.onChangeEducated(e, 's')}
               />
             </Col>
           </Row>
@@ -1438,7 +1495,10 @@ class General extends Component<{
                       )
                   )}
                 </Row>
-                <Button color='secondary' onClick={()=>this.addQualification('s')}>
+                <Button
+                  color='secondary'
+                  onClick={() => this.addQualification('s')}
+                >
                   Add Another Education or Training Program
                 </Button>
               </CardBody>
@@ -1461,32 +1521,45 @@ class General extends Component<{
               />
             </Col>
           </Row>
-          {(experiences.length && (
+          {(work_histories.length && (
             <Card>
               <CardBody className='bg-muted'>
                 <Row className='row-eq-height'>
-                  {this.experience(experiences[0], 0, 'Current (or most recent) Job:', 's')}
-                  {experiences.map(
+                  {this.experience(
+                    work_histories[0],
+                    0,
+                    'Current (or most recent) Job:',
+                    's'
+                  )}
+                  {work_histories.map(
                     (experience, index) =>
                       index !== 0 &&
-                      this.experience(experience, index, 'Current (or most recent) Job:', 's')
+                      this.experience(
+                        experience,
+                        index,
+                        'Current (or most recent) Job:',
+                        's'
+                      )
                   )}
                 </Row>
-                <Button color='secondary' onClick={()=>this.addExperience('s')}>
+                <Button
+                  color='secondary'
+                  onClick={() => this.addExperience('s')}
+                >
                   Add More Work Experience
                 </Button>
               </CardBody>
             </Card>
           )) ||
             ''}
-            <Row>
-              {language_proficiencies.map(
-                (language, index) => this.language(language, index, 's')
-              )}
-            </Row>
-            <Button color='secondary' onClick={() => this.addLanguage('s')}>
-              Add Language
-            </Button>
+          <Row>
+            {language_proficiencies.map((language, index) =>
+              this.language(language, index, 's')
+            )}
+          </Row>
+          <Button color='secondary' onClick={() => this.addLanguage('s')}>
+            Add Language
+          </Button>
 
           <Row className='mt-2'>
             <Col className='text-right'>
