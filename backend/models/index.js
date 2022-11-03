@@ -19,6 +19,8 @@ const StkittsImmigrant = require('./StkittsImmigrant')
 const Fund = require('./Fund')
 const MailQueue = require('./MailQueue')
 const Degree = require('./Degree')
+const CanadianEmployer = require('./CanadianEmployer')
+const IntlTransfer = require('./IntlTransfer')
 const {
   successEmailTemplate,
   reviewedEmailTemplate,
@@ -680,4 +682,6 @@ module.exports = {
   BusinessImmigrant,
   GeneralImmigrant,
   Degree,
+  CanadianEmployer,
+  IntlTransfer,
 }

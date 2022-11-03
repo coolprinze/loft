@@ -278,10 +278,9 @@ class Family extends Component {
                 onChange={this.onChange}
               />
             </Col>
-            <Col md={4} sm={6} className='py-1'>
+            <Col md={5} sm={6} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('married')}
-                type='radio'
                 name='married'
                 id='married'
                 title='Martal Status'
@@ -291,7 +290,7 @@ class Family extends Component {
                 onSelect={this.onChange}
               />
             </Col>
-            <Col md={8} sm={6} className='py-1'>
+            <Col md={7} sm={6} className='py-1'>
               <SelectGroup
                 invalid={this.hasErrors('plan')}
                 id='plan'
@@ -374,7 +373,6 @@ class Family extends Component {
                 <Col sm={6} className='py-1'>
                   <RadioInput
                     invalid={this.hasErrors('gov_assistance')}
-                    type='radio'
                     name='gov_assistance'
                     id='gov_assistance'
                     title='Are you currently getting any kind of social assistance from the Government'
@@ -400,7 +398,6 @@ class Family extends Component {
                 <Col sm={6} className='py-1'>
                   <RadioInput
                     invalid={this.hasErrors('canada_residence')}
-                    type='radio'
                     name='canada_residence'
                     id='canada_residence'
                     title='Are you currently residing in Canada'

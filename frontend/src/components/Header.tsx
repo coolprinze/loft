@@ -24,18 +24,20 @@ const Header = ({
               <ul className='nav'>
                 <li className='nav-item mx-3'>
                   <NavLink
-                    className='nav-link'
+                    className={(isActive) =>
+                      (isActive ? 'active ' : '') + 'nav-link'
+                    }
                     to={`${process.env.PUBLIC_URL}/general`}
-                    activeClassName='active'
                   >
                     General Immigration
                   </NavLink>
                 </li>
                 <li className='nav-item mx-3'>
                   <NavLink
-                    className='nav-link'
+                    className={(isActive) =>
+                      (isActive ? 'active ' : '') + 'nav-link'
+                    }
                     to={`${process.env.PUBLIC_URL}/business-immigration`}
-                    activeClassName='active'
                   >
                     Business Immigration
                   </NavLink>
@@ -43,18 +45,20 @@ const Header = ({
 
                 <li className='nav-item mx-3'>
                   <NavLink
-                    className='nav-link'
+                    className={(isActive) =>
+                      (isActive ? 'active ' : '') + 'nav-link'
+                    }
                     to={`${process.env.PUBLIC_URL}/family-sponsorship`}
-                    activeClassName='active'
                   >
                     Family Sponsorship
                   </NavLink>
                 </li>
                 <li className='nav-item mx-3'>
                   <NavLink
-                    className='nav-link'
+                    className={(isActive) =>
+                      (isActive ? 'active ' : '') + 'nav-link'
+                    }
                     to={`${process.env.PUBLIC_URL}/study-visa`}
-                    activeClassName='active'
                   >
                     Study Visa
                   </NavLink>

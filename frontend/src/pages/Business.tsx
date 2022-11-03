@@ -321,7 +321,6 @@ class Business extends Component {
             <Col sm={12} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('experienced')}
-                type='radio'
                 name='experienced'
                 id='experienced'
                 title='Do you have at least 2 years of management experience'

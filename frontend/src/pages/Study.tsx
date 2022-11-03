@@ -453,7 +453,6 @@ class Study extends Component {
             <Col sm={12} className='py-2'>
               <RadioInput
                 invalid={this.hasErrors('bank_statement')}
-                type='radio'
                 name='bank_statement'
                 id='bank_statement'
                 title='Are you, or a family member, able to provide bank statements equivalent of $25,000 USD or more to cover your living expenses while you study in Canada?'
@@ -465,7 +464,6 @@ class Study extends Component {
             <Col sm={12} className='py-2'>
               <RadioInput
                 invalid={this.hasErrors('admission')}
-                type='radio'
                 name='admission'
                 id='admission'
                 title='Do you already have a letter of admission/acceptance to a Canadian educational institution?'

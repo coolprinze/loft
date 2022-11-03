@@ -273,7 +273,6 @@ const Stkitts = ({
               <Col lg={4} sm={6} className='py-1'>
                 <RadioInput
                   invalid={hasErrors('married')}
-                  type='radio'
                   name='married'
                   id='married'
                   title='Martal Status'
@@ -411,7 +410,6 @@ const Stkitts = ({
               <Col sm={6} className='py-1'>
                 <RadioInput
                   invalid={hasErrors('rejected')}
-                  type='radio'
                   value={rejected}
                   name='rejected'
                   id='rejected'
@@ -439,7 +437,6 @@ const Stkitts = ({
               <Col sm={6} className='py-1'>
                 <RadioInput
                   invalid={hasErrors('deported')}
-                  type='radio'
                   value={deported}
                   name='deported'
                   id='deported'

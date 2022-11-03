@@ -631,7 +631,6 @@ class Business2 extends Component<{
             <Col sm={6} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('married')}
-                type='radio'
                 name='married'
                 id='married'
                 title='Martal Status'
@@ -750,7 +749,6 @@ class Business2 extends Component<{
             <Col sm={12} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('managerial_experience')}
-                type='radio'
                 name='managerial_experience'
                 id='managerial_experience'
                 title='Do you have at least 2 years of management experience'
@@ -765,7 +763,6 @@ class Business2 extends Component<{
             <Col sm={12} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('educated')}
-                type='radio'
                 name='educated'
                 id='educated'
                 title='Have you received any post-secondary education or training?'
@@ -879,7 +876,6 @@ class Business2 extends Component<{
             <Col sm={12} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('seducated')}
-                type='radio'
                 name='spouseEducated'
                 id='spouseEducated'
                 title='Have your spouse received any post-secondary education or training?'

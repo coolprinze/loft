@@ -3,6 +3,7 @@ const { Sequelize } = require('sequelize')
 
 const sequelize = new Sequelize('loft_im', 'root', 'root', {
   host: 'localhost',
+  port: 8889,
   dialect: 'mysql',
   dialectOptions: {
     charset: 'utf8',

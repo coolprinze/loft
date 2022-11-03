@@ -178,8 +178,9 @@ const Antigua = ({
           ...userData,
           [e.target.name]: e.target.value,
         })
-    },
-    section1 = (isOpen: number) => {
+    }
+
+  const section1 = (isOpen: number) => {
       const {
         first_name,
         last_name,
@@ -273,7 +274,6 @@ const Antigua = ({
               <Col lg={4} sm={6} className='py-1'>
                 <RadioInput
                   invalid={hasErrors('married')}
-                  type='radio'
                   name='married'
                   id='married'
                   title='Martal Status'
@@ -411,7 +411,6 @@ const Antigua = ({
               <Col sm={6} className='py-1'>
                 <RadioInput
                   invalid={hasErrors('rejected')}
-                  type='radio'
                   value={rejected}
                   name='rejected'
                   id='rejected'
@@ -439,7 +438,6 @@ const Antigua = ({
               <Col sm={6} className='py-1'>
                 <RadioInput
                   invalid={hasErrors('deported')}
-                  type='radio'
                   value={deported}
                   name='deported'
                   id='deported'

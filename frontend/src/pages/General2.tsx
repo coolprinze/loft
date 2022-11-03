@@ -1178,10 +1178,9 @@ class General extends Component<{
                 required
               />
             </Col>
-            <Col md={4} sm={6} className='py-1'>
+            <Col md={5} sm={6} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('married')}
-                type='radio'
                 name='married'
                 id='married'
                 title='Martal Status'
@@ -1191,7 +1190,7 @@ class General extends Component<{
                 onSelect={this.onChange}
               />
             </Col>
-            <Col md={4} sm={6} className='py-1'>
+            <Col md={3} sm={6} className='py-1'>
               <TextInputGroup
                 invalid={this.hasErrors('children')}
                 label='Number of Children'
@@ -1248,7 +1247,6 @@ class General extends Component<{
             <Col sm={12} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('educated')}
-                type='radio'
                 name='educated'
                 id='educated'
                 title='Have you received any post-secondary education or training?'
@@ -1325,7 +1323,6 @@ class General extends Component<{
             <Col sm={12} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('experienced')}
-                type='radio'
                 name='experienced'
                 id='experienced'
                 title='Have you had paid work experience in the last 10 years?'
@@ -1463,7 +1460,6 @@ class General extends Component<{
             <Col sm={12} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('seducated')}
-                type='radio'
                 name='spouseEducated'
                 id='spouseEducated'
                 title='Have your spouse received any post-secondary education or training?'
@@ -1510,7 +1506,6 @@ class General extends Component<{
             <Col sm={12} className='py-1'>
               <RadioInput
                 invalid={this.hasErrors('sexperienced')}
-                type='radio'
                 name='experienced'
                 id='sexperienced'
                 title='Have your spouse had paid work experience in the last 10 years?'
@@ -1600,7 +1595,6 @@ class General extends Component<{
             <Col sm={12} className='py-3'>
               <RadioInput
                 invalid={this.hasErrors('job_offer')}
-                type='radio'
                 name='job_offer'
                 id='job_offer'
                 title='Do you have a written job offer from a Canadian employer?'
@@ -1613,7 +1607,6 @@ class General extends Component<{
             <Col sm={12} className='py-3'>
               <RadioInput
                 invalid={this.hasErrors('family_in_canada')}
-                type='radio'
                 name='family_in_canada'
                 id='family_in_canada'
                 title='Do you, or your Spouse/Common-Law Partner, have any family members and or extended relatives living in Canada?'
@@ -1626,7 +1619,6 @@ class General extends Component<{
             <Col sm={12} className='py-3'>
               <RadioInput
                 invalid={this.hasErrors('criminal_record')}
-                type='radio'
                 name='criminal_record'
                 id='criminal_record'
                 title='I have a criminal record'
@@ -1639,7 +1631,6 @@ class General extends Component<{
             <Col sm={12} className='py-3'>
               <RadioInput
                 invalid={this.hasErrors('medical_condition')}
-                type='radio'
                 name='medical_condition'
                 id='medical_condition'
                 title='I have a serious medical condition'
