@@ -92,7 +92,7 @@ const AdminLayout = ({
                   <Collapse isOpen={isOpen === 'business'} className='pl-4'>
                     <div className='mb-1'>
                       <NavLink
-                        className={(_) => (_ ? 'active' : '')}
+                        className={(_) => (_.isActive ? 'active' : '')}
                         onClick={toggleMenu}
                         to={`${process.env.PUBLIC_URL}/business/leads`}
                       >
@@ -101,7 +101,7 @@ const AdminLayout = ({
                     </div>
                     <div className='mb-1'>
                       <NavLink
-                        className={(_) => (_ ? 'active' : '')}
+                        className={(_) => (_.isActive ? 'active' : '')}
                         onClick={toggleMenu}
                         to={`${process.env.PUBLIC_URL}/business/clients`}
                       >
@@ -126,7 +126,7 @@ const AdminLayout = ({
                   <Collapse isOpen={isOpen === 'general'} className='pl-4'>
                     <div className='mb-1'>
                       <NavLink
-                        className={(_) => (_ ? 'active' : '')}
+                        className={(_) => (_.isActive ? 'active' : '')}
                         onClick={toggleMenu}
                         to={`${process.env.PUBLIC_URL}/general/leads`}
                       >
@@ -135,7 +135,7 @@ const AdminLayout = ({
                     </div>
                     <div className='mb-1'>
                       <NavLink
-                        className={(_) => (_ ? 'active' : '')}
+                        className={(_) => (_.isActive ? 'active' : '')}
                         onClick={toggleMenu}
                         to={`${process.env.PUBLIC_URL}/general/clients`}
                       >
@@ -147,7 +147,7 @@ const AdminLayout = ({
                 <hr className='mt-0 mb-3' />
                 <div className='mb-1'>
                   <NavLink
-                    className={(_) => (_ ? 'active' : '')}
+                    className={(_) => (_.isActive ? 'active' : '')}
                     onClick={toggleMenu}
                     to={`${process.env.PUBLIC_URL}/canadian-employers`}
                   >
@@ -157,7 +157,7 @@ const AdminLayout = ({
                 <hr className='mt-0 mb-3' />
                 <div className='mb-1'>
                   <NavLink
-                    className={(_) => (_ ? 'active' : '')}
+                    className={(_) => (_.isActive ? 'active' : '')}
                     onClick={toggleMenu}
                     to={`${process.env.PUBLIC_URL}/intl-transfer`}
                   >

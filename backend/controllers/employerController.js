@@ -76,6 +76,9 @@ const getEmployers = expressAsyncHandler(async (req, res) => {
           'phone',
           'email',
           'website',
+          'contact_person',
+          'contact_position',
+          'company_name',
         ].map((_) => ({ [_]: { [Op.like]: `%${_q}%` } })),
       }
       delete req.query._q
@@ -117,15 +120,17 @@ const getTransfers = expressAsyncHandler(async (req, res) => {
       q = {
         [Op.or]: [
           'employees_total',
-          'company_name',
           'managers_to_transfer',
           'employees_to_transfer',
           'revenue',
           'hq_location',
+          'company_name',
           'business_activity',
           'phone',
           'email',
           'website',
+          'contact_person',
+          'contact_position',
         ].map((_) => ({ [_]: { [Op.like]: `%${_q}%` } })),
       }
       delete req.query._q

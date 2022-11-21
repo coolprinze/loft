@@ -13,6 +13,11 @@ import { handleErr } from '../helpers'
 const data = {
   titles: [
     'ID',
+    'Comp Name',
+    'Ctact Pson',
+    'Ctact Posi',
+    'Phone',
+    'Email',
     'Emp Ttal',
     'Emp ftime',
     'Emp ptime',
@@ -21,8 +26,6 @@ const data = {
     'Situation',
     'Biz Activity',
     'Location',
-    'Phone',
-    'Email',
     'Website',
     'Created',
   ],
@@ -99,6 +102,12 @@ const CanadianEmployer = ({ token }: any) => {
           <CSVLink
             data={employerList.map(
               ({
+                company_name,
+                contact_person,
+                contact_position,
+                phone,
+                email,
+                website,
                 employees_total,
                 employees_fulltime,
                 employees_parttime,
@@ -107,10 +116,14 @@ const CanadianEmployer = ({ token }: any) => {
                 situation,
                 business_activity,
                 location,
-                phone,
-                email,
-                website,
+                createdAt,
               }) => ({
+                company_name,
+                contact_person,
+                contact_position,
+                phone,
+                email,
+                website,
                 employees_total,
                 employees_fulltime,
                 employees_parttime,
@@ -119,9 +132,7 @@ const CanadianEmployer = ({ token }: any) => {
                 situation,
                 business_activity,
                 location,
-                phone,
-                email,
-                website,
+                createdAt,
               })
             )}
             target='_blank'
@@ -132,7 +143,7 @@ const CanadianEmployer = ({ token }: any) => {
           </CSVLink>
         </Col>
       </Row>
-      <Card className='p-0 resp'>
+      <Card className='p-0 my-4 resp'>
         <Table responsive striped bordered>
           <thead>
             <tr>
@@ -146,6 +157,12 @@ const CanadianEmployer = ({ token }: any) => {
           <tbody>
             {employerList.map((employer, key: any) => {
               const {
+                company_name,
+                contact_person,
+                contact_position,
+                phone,
+                email,
+                website,
                 employees_total,
                 employees_fulltime,
                 employees_parttime,
@@ -154,14 +171,16 @@ const CanadianEmployer = ({ token }: any) => {
                 situation,
                 business_activity,
                 location,
-                phone,
-                email,
-                website,
                 createdAt,
               } = employer
               return (
                 <tr key={key}>
                   <th scope='row'>{key + 1}</th>
+                  <td>{company_name}</td>
+                  <td>{contact_person}</td>
+                  <td>{contact_position}</td>
+                  <td>{phone}</td>
+                  <td>{email}</td>
                   <td>{employees_total}</td>
                   <td>{employees_fulltime}</td>
                   <td>{employees_parttime}</td>
@@ -170,8 +189,6 @@ const CanadianEmployer = ({ token }: any) => {
                   <td>{situation}</td>
                   <td>{business_activity}</td>
                   <td>{location}</td>
-                  <td>{phone}</td>
-                  <td>{email}</td>
                   <td>{website}</td>
                   <td>{moment(createdAt).format('L | HH:mm')}</td>
                 </tr>

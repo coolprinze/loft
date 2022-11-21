@@ -13,15 +13,17 @@ import { handleErr } from '../helpers'
 const data = {
   titles: [
     'ID',
-    'Emp Ttal',
     'Comp Name',
+    'Ctact Pson',
+    'Ctact Posi',
+    'Phone',
+    'Email',
+    'Emp Ttal',
     'Man To Trans',
     'Emp To Trans',
     'Revenue',
     'Hq Location',
     'Biz Activity',
-    'Phone',
-    'Email',
     'Website',
     'Created',
   ],
@@ -98,26 +100,30 @@ const IntlEmployer = ({ token }: any) => {
           <CSVLink
             data={transferList.map(
               ({
-                employees_total,
                 company_name,
+                contact_person,
+                contact_position,
+                phone,
+                email,
+                employees_total,
                 managers_to_transfer,
                 employees_to_transfer,
                 revenue,
                 hq_location,
                 business_activity,
-                phone,
-                email,
                 website,
               }) => ({
-                employees_total,
                 company_name,
+                contact_person,
+                contact_position,
+                phone,
+                email,
+                employees_total,
                 managers_to_transfer,
                 employees_to_transfer,
                 revenue,
                 hq_location,
                 business_activity,
-                phone,
-                email,
                 website,
               })
             )}
@@ -129,7 +135,7 @@ const IntlEmployer = ({ token }: any) => {
           </CSVLink>
         </Col>
       </Row>
-      <Card className='p-0 resp'>
+      <Card className='p-0 my-4 resp'>
         <Table responsive striped bordered>
           <thead>
             <tr>
@@ -143,30 +149,34 @@ const IntlEmployer = ({ token }: any) => {
           <tbody>
             {transferList.map((employer, key: any) => {
               const {
-                employees_total,
                 company_name,
+                contact_person,
+                contact_position,
+                phone,
+                email,
+                employees_total,
                 managers_to_transfer,
                 employees_to_transfer,
                 revenue,
                 hq_location,
                 business_activity,
-                phone,
-                email,
                 website,
                 createdAt,
               } = employer
               return (
                 <tr key={key}>
                   <th scope='row'>{key + 1}</th>
-                  <td>{employees_total}</td>
                   <td>{company_name}</td>
+                  <td>{contact_person}</td>
+                  <td>{contact_position}</td>
+                  <td>{phone}</td>
+                  <td>{email}</td>
+                  <td>{employees_total}</td>
                   <td>{managers_to_transfer}</td>
                   <td>{employees_to_transfer}</td>
                   <td>{revenue}</td>
                   <td>{hq_location}</td>
                   <td>{business_activity}</td>
-                  <td>{phone}</td>
-                  <td>{email}</td>
                   <td>{website}</td>
                   <td>{moment(createdAt).format('L | HH:mm')}</td>
                 </tr>

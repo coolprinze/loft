@@ -1,5 +1,4 @@
 #Dashboard {
-
   @media (max-width: 767px) {
     .menu {
       position: fixed;
@@ -39,6 +38,7 @@
     border-left: 2px solid red;
     padding-left: 5px;
     border-radius: 3px;
+    color: #003400;
     transition: padding 0.03s ease-out;
   }
 }

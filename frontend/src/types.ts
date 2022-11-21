@@ -5,6 +5,8 @@ export type errorKey =
   | 'fname'
   | 'sdegree'
   | 'lname'
+  | 'contact_person'
+  | 'contact_position'
   | 'employees_total'
   | 'employees_fulltime'
   | 'employees_parttime'

@@ -4,6 +4,8 @@ import { animateScroll as scroll } from 'react-scroll'
 import { toast } from 'react-toastify'
 import { Alert, Button, Col, Row } from 'reactstrap'
 import validator from 'validator'
+
+import CompanyInfo, { companyInitialState } from '../components/CompanyInfo'
 import { TextInputGroup } from '../components/Form'
 import Loading from '../components/Loading'
 import { apiURL } from '../config'
@@ -12,16 +14,12 @@ import MainLayout from '../layouts/MainLayout'
 import { errorKey } from '../types'
 
 const initialState = {
+  ...companyInitialState,
+  hq_location: '',
+  revenue: '',
   employees_total: '',
-  company_name: '',
   managers_to_transfer: '',
   employees_to_transfer: '',
-  revenue: '',
-  hq_location: '',
-  business_activity: '',
-  phone: '',
-  email: '',
-  website: '',
 }
 
 function IntlEmployer() {
@@ -40,22 +38,28 @@ function IntlEmployer() {
     },
     validateStep = () => {
       let {
-        employees_total,
         company_name,
-        managers_to_transfer,
-        employees_to_transfer,
-        revenue,
-        hq_location,
-        business_activity,
+        contact_person,
+        contact_position,
         phone: phn,
         email,
+        business_activity,
+        location,
         website,
+        hq_location,
+        revenue,
+        employees_total,
+        managers_to_transfer,
+        employees_to_transfer,
       } = userData
 
       const errors: any = []
 
       const phone = phn.replace(/\D/g, '').slice(-10)
 
+      !contact_person && errors.push('contact_person')
+      !contact_position && errors.push('contact_position')
+      !location && errors.push('location')
       !employees_total && errors.push('employees_total')
       !company_name && errors.push('company_name')
       !managers_to_transfer && errors.push('managers_to_transfer')
@@ -68,11 +72,12 @@ function IntlEmployer() {
       !validator.isEmail(email) && errors.push('email')
       !validator.isMobilePhone(phone) && errors.push('phone')
 
-      if (!errors.length)
-        //
-        // console.log(userData)
-        submitHandler()
-      else setErrors(errors)
+      if (!errors.length) submitHandler()
+      else {
+        console.log(errors)
+
+        setErrors(errors)
+      }
     },
     submitHandler = async () => {
       setLoading(true)
@@ -88,7 +93,7 @@ function IntlEmployer() {
         }
         await axios.post(`${apiURL}/employers/intl-transfer`, data, config)
         toast.success('Submission successful')
-        window.location.href = '/employers-thanks'
+        window.location.href = '/thank-you-ict/'
         setUserData(initialState)
         setLoading(false)
       } catch (err) {
@@ -108,51 +113,11 @@ function IntlEmployer() {
           <h2>Employment Details</h2>
 
           <Row>
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                required
-                invalid={hasErrors('company_name')}
-                label='Name of Company'
-                name='company_name'
-                value={userData.company_name}
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                required
-                invalid={hasErrors('website')}
-                label='Link to the company’s Website'
-                name='website'
-                type='url'
-                value={userData.website}
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                required
-                invalid={hasErrors('employees_total')}
-                label='How many employees does the company have on its payroll'
-                name='employees_total'
-                value={userData.employees_total}
-                type='number'
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                required
-                invalid={hasErrors('business_activity')}
-                label='Principal business activity'
-                name='business_activity'
-                value={userData.business_activity}
-                onChange={onChange}
-              />
-            </Col>
+            <CompanyInfo
+              onChange={onChange}
+              userData={userData}
+              hasErrors={hasErrors}
+            />
 
             <Col sm={6} className='py-1'>
               <TextInputGroup
@@ -180,6 +145,18 @@ function IntlEmployer() {
             <Col sm={6} className='py-1'>
               <TextInputGroup
                 required
+                invalid={hasErrors('employees_total')}
+                label='How many employees does the company have on its payroll'
+                name='employees_total'
+                value={userData.employees_total}
+                type='number'
+                onChange={onChange}
+              />
+            </Col>
+
+            <Col sm={6} className='py-1'>
+              <TextInputGroup
+                required
                 invalid={hasErrors('managers_to_transfer')}
                 label='Number of senior managers you are looking to transfer to canada to set-up'
                 name='managers_to_transfer'
@@ -197,29 +174,6 @@ function IntlEmployer() {
                 name='employees_to_transfer'
                 type='number'
                 value={userData.employees_to_transfer}
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                label='Email Address'
-                name='email'
-                value={userData.email}
-                required
-                isEmail
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                label='Phone'
-                name='phone'
-                type='tel'
-                value={userData.phone}
-                required
-                isPhoneNumber
                 onChange={onChange}
               />
             </Col>

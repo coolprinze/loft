@@ -256,7 +256,7 @@ const successEmailTemplate = (immigrant, type = '') => {
     <p>
       Thank you once again for taking the time to fill the assessment form, we have reviewed it.
 
-      <p>We will like to book a one-on-one zoom session with you and Mr. Patrick Peters. However, we require a 5-10 minutes alignment session (pre-zoom meeting) to discuss with one of our licensed immigration specialist – Mrs. Adewunmi. You can reach her via - <a href="https://api.whatsapp.com/send?phone=16473902283" target="_blank" rel="noreferrer"><span style="color: black; background: yellow; mso-highlight: yellow">WHATSAPP</span></a>, <span style="background: yellow; mso-highlight: yellow"><a href="http://bit.ly/SkypewithLoftImmi" target="_blank" rel="noreferrer"><span style="color: black">SKYPE</span></a>, or directly via <u>+1 (647)3902283.</u></span>
+      <p>We will like to book a one-on-one zoom session with you and Mr. Patrick Peters. However, we require a 5-10 minutes alignment session (pre-zoom meeting) to discuss with one of our licensed immigration specialist – Mrs. Adewunmi. You can reach her via - <a href="https://api.whatsapp.com/send?phone=14164921222" target="_blank" rel="noreferrer"><span style="color: black; background: yellow; mso-highlight: yellow">WHATSAPP</span></a>, <span style="background: yellow; mso-highlight: yellow"><a href="http://bit.ly/SkypewithLoftImmi" target="_blank" rel="noreferrer"><span style="color: black">SKYPE</span></a>, or directly via <u>+1 (416) 492-1222.</u></span>
       </p>
     </p>
     <p>Warm regards<br />

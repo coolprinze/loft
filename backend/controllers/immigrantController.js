@@ -161,9 +161,10 @@ const getImmigrants = asyncHandler(async (req, res) => {
     dateRange = {},
     include = { all: true, include: { all: true } }
   validSearchParam = []
-  if (type === 'antigua') Immigrant = AntiguaImmigrant
-  else if (type === 'stkitts') Immigrant = StkittsImmigrant
-  else if (type === 'businesses') {
+  // if (type === 'antigua') Immigrant = AntiguaImmigrant
+  // else if (type === 'stkitts') Immigrant = StkittsImmigrant
+  // else
+  if (type === 'businesses') {
     Immigrant = BusinessImmigrant
     include = [
       {

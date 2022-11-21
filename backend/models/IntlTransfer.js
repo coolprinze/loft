@@ -1,14 +1,12 @@
 const sequelize = require('../config/db.js')
 const Sequelize = require('sequelize')
+const { companyInfo } = require('./types.js')
 
 const { DataTypes } = Sequelize
 
 const IntlTransfer = sequelize.define('intl_transfer', {
+  ...companyInfo,
   employees_total: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  company_name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -25,22 +23,6 @@ const IntlTransfer = sequelize.define('intl_transfer', {
     allowNull: false,
   },
   hq_location: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  business_activity: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  phone: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  website: {
     type: DataTypes.STRING,
     allowNull: false,
   },

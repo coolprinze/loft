@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import Datetime from 'react-datetime'
-import Select from 'react-select'
 import makeAnimated from 'react-select/animated'
 import CreatableSelect from 'react-select/creatable'
 import {
@@ -204,7 +203,7 @@ export const RadioInput = ({
       opts.map((_) => ({
         ..._,
         // @ts-ignore
-        selected: _.label == e.target.title ? true : false,
+        selected: _.label === e.target.title ? true : false,
       }))
     )
     onSelect(e)
@@ -427,6 +426,8 @@ export const CustomSelectGroup = ({
           isMulti={isMulti}
           placeholder={placeholder}
           options={options}
+          classNamePrefix='loft'
+          styles={{ dropdownIndicator: (styles) => ({ display: 'none' }) }}
         />
       </InputGroup>
     </FormGroup>

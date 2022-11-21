@@ -1,9 +1,11 @@
 import axios from 'axios'
-import React, { useState } from 'react'
-import { toast } from 'react-toastify'
+import { useState } from 'react'
 import { animateScroll as scroll } from 'react-scroll'
+import { toast } from 'react-toastify'
 import { Alert, Button, Col, Row } from 'reactstrap'
 import validator from 'validator'
+
+import CompanyInfo, { companyInitialState } from '../components/CompanyInfo'
 import {
   CustomSelectGroup,
   SelectGroup,
@@ -16,17 +18,13 @@ import MainLayout from '../layouts/MainLayout'
 import { errorKey } from '../types'
 
 const initialState = {
-  employees_total: '',
-  employees_fulltime: '',
-  employees_parttime: '',
+  ...companyInitialState,
   employees_needed: '',
   positions: [],
   situation: '',
-  business_activity: '',
-  location: '',
-  phone: '',
-  email: '',
-  website: '',
+  employees_total: '',
+  employees_fulltime: '',
+  employees_parttime: '',
 }
 
 function CanadianEmployer() {
@@ -47,23 +45,29 @@ function CanadianEmployer() {
     },
     validateStep = () => {
       let {
-        employees_total,
-        employees_fulltime,
-        employees_parttime,
+        company_name,
+        contact_person,
+        contact_position,
+        phone: phn,
+        email,
+        business_activity,
+        location,
+        website,
         employees_needed,
         positions,
         situation,
-        business_activity,
-        location,
-        phone: phn,
-        email,
-        website,
+        employees_total,
+        employees_fulltime,
+        employees_parttime,
       } = userData
 
       const errors: any = []
 
       const phone = phn.replace(/\D/g, '').slice(-10)
 
+      !company_name && errors.push('company_name')
+      !contact_person && errors.push('contact_person')
+      !contact_position && errors.push('contact_position')
       !employees_total && errors.push('employees_total')
       !employees_fulltime && errors.push('employees_fulltime')
       !employees_parttime && errors.push('employees_parttime')
@@ -102,7 +106,7 @@ function CanadianEmployer() {
         }
         await axios.post(`${apiURL}/employers/canadian-employers`, data, config)
         toast.success('Submission successful')
-        window.location.href = '/employers-thanks'
+        window.location.href = '/thank-you-fw/'
         setUserData(initialState)
         setLoading(false)
       } catch (err) {
@@ -122,6 +126,53 @@ function CanadianEmployer() {
           <h2>Employment Details</h2>
 
           <Row>
+            <CompanyInfo
+              onChange={onChange}
+              userData={userData}
+              hasErrors={hasErrors}
+            />
+
+            <Col sm={6} className='py-1'>
+              <TextInputGroup
+                required
+                invalid={hasErrors('employees_needed')}
+                label='How many workers are you looking to hire'
+                name='employees_needed'
+                value={userData.employees_needed}
+                type='number'
+                onChange={onChange}
+              />
+            </Col>
+            <Col sm={6} className='py-1'>
+              <CustomSelectGroup
+                label='What positions are you looking to fill'
+                placeholder={'Start typing...'}
+                options={[]}
+                isMulti
+                isClearable
+                required
+                onSelect={(e) => onChange(e, 'positions')}
+                invalid={hasErrors('positions')}
+              />
+            </Col>
+
+            <Col sm={6} className='py-1'>
+              <SelectGroup
+                invalid={hasErrors('situation')}
+                id='situation'
+                name='situation'
+                value={userData.situation}
+                options={[
+                  'I have identified the workers I want to recruit',
+                  'I need help identifying candidates for recruitment.',
+                ].map((_) => ({ value: _, name: _ }))}
+                placeholder='Select...'
+                onSelect={onChange}
+                required
+                label='Recruitment needs'
+              />
+            </Col>
+
             <Col sm={6} className='py-1'>
               <TextInputGroup
                 required
@@ -158,105 +209,7 @@ function CanadianEmployer() {
               />
             </Col>
 
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                required
-                invalid={hasErrors('employees_needed')}
-                label='How many workers are you looking to hire'
-                name='employees_needed'
-                value={userData.employees_needed}
-                type='number'
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <CustomSelectGroup
-                label='What positions are you looking to fill'
-                placeholder={'Start typing...'}
-                options={[]}
-                isMulti
-                isClearable
-                required
-                onSelect={(e) => onChange(e, 'positions')}
-                invalid={hasErrors('positions')}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <SelectGroup
-                invalid={hasErrors('situation')}
-                id='situation'
-                name='situation'
-                value={userData.situation}
-                options={[
-                  'I have identified the workers I want to recruit',
-                  'I need help identifying candidates for recruitment.',
-                ].map((_) => ({ value: _, name: _ }))}
-                placeholder='Select...'
-                onSelect={onChange}
-                required
-                label='Current situation'
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                required
-                invalid={hasErrors('business_activity')}
-                label='Principal business activity'
-                name='business_activity'
-                value={userData.business_activity}
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                required
-                invalid={hasErrors('location')}
-                label='Business Location'
-                name='location'
-                value={userData.location}
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                required
-                invalid={hasErrors('website')}
-                label='Business Website'
-                name='website'
-                value={userData.website}
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                label='Email Address'
-                name='email'
-                value={userData.email}
-                required
-                isEmail
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col sm={6} className='py-1'>
-              <TextInputGroup
-                label='Phone'
-                name='phone'
-                type='tel'
-                value={userData.phone}
-                required
-                isPhoneNumber
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col className='text-right' sm='12'>
+            <Col className='mt-3 text-center' sm='12'>
               <Button
                 color='danger'
                 onClick={() => validateStep()}
